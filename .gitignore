@@ -29,6 +29,9 @@ pnpm-debug.log*
 /src/payload-types.ts
 /media/
 
+# Generated from src/tokens/tokens.ts — run `pnpm tokens:build`
+/src/tokens/tokens.generated.css
+
 # Deploy
 /.vercel/
 

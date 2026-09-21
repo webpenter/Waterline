@@ -22,7 +22,7 @@ function parseFirstLoadJs(buildOutput) {
   return results;
 }
 
-const buildOutput = execSync('pnpm exec next build', {
+const buildOutput = execSync('pnpm build', {
   encoding: 'utf8',
   env: { ...process.env, NEXT_TELEMETRY_DISABLED: '1' },
 });

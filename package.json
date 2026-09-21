@@ -4,9 +4,12 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "predev": "pnpm tokens:build",
     "dev": "next dev",
+    "prebuild": "pnpm tokens:build",
     "build": "next build",
     "start": "next start",
+    "tokens:build": "tsx scripts/generate-tokens-css.mjs",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "test": "vitest run",
