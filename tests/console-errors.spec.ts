@@ -5,7 +5,7 @@ import { test, expect, type Page } from '@playwright/test';
 // still sees hydration noise locally, the mismatch is injected by a browser
 // extension, not by our HTML.
 
-const ROUTES = ['/', '/dev/styleguide'];
+const ROUTES = ['/en', '/it', '/dev/styleguide'];
 
 function collectErrors(page: Page): string[] {
   const errors: string[] = [];

@@ -3,7 +3,7 @@ import AxeBuilder from '@axe-core/playwright';
 
 test.describe('Accessibility', () => {
   test('homepage has no automatically detectable a11y violations', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/en');
     const results = await new AxeBuilder({ page }).analyze();
     expect(results.violations).toEqual([]);
   });
