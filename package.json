@@ -13,6 +13,7 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "analyze": "ANALYZE=true next build",
+    "bundle:budget": "node scripts/check-bundle-budget.mjs",
     "payload": "payload",
     "payload:generate:types": "payload generate:types",
     "seed": "tsx src/scripts/seed.ts",
