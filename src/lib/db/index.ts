@@ -1,0 +1,277 @@
+import { getPayload, type Payload, type Where } from 'payload';
+
+import config from '@payload-config';
+import type { Property } from '@/payload-types';
+import { isTypesenseHealthy, searchWithTypesense, type SearchResult } from '@/lib/search/client';
+import { toSearchDocument } from '@/lib/search/document';
+
+import { filtersToWhere, publicPredicate, sortToPayload, type PropertyFilters } from './filters';
+import { sanitizePropertyForPublic } from './sanitize';
+
+// The ONLY place that touches the database (CLAUDE.md rule 2).
+// Every public read applies publicPredicate() and §6.6 privacy sanitization.
+
+export type Locale = 'en' | 'it' | 'fr' | 'de' | 'es' | 'ru';
+
+let cached: Payload | null = null;
+
+export async function getPayloadClient(): Promise<Payload> {
+  if (!cached) cached = await getPayload({ config: await config });
+  return cached;
+}
+
+export async function getPropertyBySlug(
+  slug: string,
+  locale: Locale = 'en',
+): Promise<Property | null> {
+  const payload = await getPayloadClient();
+  const res = await payload.find({
+    collection: 'properties',
+    where: { and: [publicPredicate(), { slug: { equals: slug } }] },
+    locale,
+    depth: 2,
+    limit: 1,
+  });
+  const doc = res.docs[0];
+  return doc ? sanitizePropertyForPublic(doc) : null;
+}
+
+export async function getFeatured(limit = 6, locale: Locale = 'en'): Promise<Property[]> {
+  const payload = await getPayloadClient();
+  const res = await payload.find({
+    collection: 'properties',
+    where: { and: [publicPredicate(), { featured: { equals: true } }] },
+    locale,
+    depth: 1,
+    limit,
+    sort: '-publishedAt',
+  });
+  return res.docs.map(sanitizePropertyForPublic);
+}
+
+export async function getSimilar(
+  property: Property,
+  limit = 3,
+  locale: Locale = 'en',
+): Promise<Property[]> {
+  const payload = await getPayloadClient();
+  const clauses: Where[] = [
+    publicPredicate(),
+    { id: { not_equals: property.id } },
+    { waterBodyType: { equals: property.waterBodyType } },
+  ];
+  if (property.location?.country) {
+    clauses.push({ 'location.country': { equals: property.location.country } });
+  }
+  if (property.priceEur != null) {
+    clauses.push({ priceEur: { greater_than_equal: Math.round(property.priceEur * 0.5) } });
+    clauses.push({ priceEur: { less_than_equal: Math.round(property.priceEur * 1.5) } });
+  }
+  const res = await payload.find({
+    collection: 'properties',
+    where: { and: clauses },
+    locale,
+    depth: 1,
+    limit,
+    sort: '-publishedAt',
+  });
+  return res.docs.map(sanitizePropertyForPublic);
+}
+
+export interface SearchDeps {
+  typesense?: (filters: PropertyFilters) => Promise<SearchResult>;
+  postgres?: (filters: PropertyFilters) => Promise<SearchResult>;
+  healthy?: () => Promise<boolean>;
+}
+
+/**
+ * Faceted search: Typesense when reachable, automatic Postgres fallback when
+ * not (spec Prompt 5 acceptance: killing Typesense still returns results).
+ */
+export async function searchProperties(
+  filters: PropertyFilters,
+  deps: SearchDeps = {},
+): Promise<SearchResult> {
+  const healthy = deps.healthy ?? isTypesenseHealthy;
+  const engine = deps.typesense ?? searchWithTypesense;
+  const fallback = deps.postgres ?? searchPropertiesPostgres;
+
+  if (await healthy()) {
+    try {
+      return await engine(filters);
+    } catch (err) {
+      console.error('[search] Typesense failed mid-query; using Postgres fallback:', err);
+    }
+  }
+  return fallback(filters);
+}
+
+export async function searchPropertiesPostgres(
+  filters: PropertyFilters,
+): Promise<SearchResult> {
+  const payload = await getPayloadClient();
+  const page = filters.page ?? 1;
+  const limit = Math.min(filters.limit ?? 24, 100);
+  const res = await payload.find({
+    collection: 'properties',
+    where: filtersToWhere(filters),
+    sort: sortToPayload(filters.sort),
+    page,
+    limit,
+    depth: 1,
+  });
+  return {
+    hits: res.docs
+      .map(sanitizePropertyForPublic)
+      .map((doc) => toSearchDocument(doc) as SearchResult['hits'][number]),
+    total: res.totalDocs,
+    page,
+    facets: {},
+    engine: 'postgres',
+  };
+}
+
+export interface ScopeAggregates {
+  count: number;
+  medianPriceEur: number | null;
+  medianFrontageM: number | null;
+  topPropertyType: string | null;
+}
+
+function median(values: number[]): number | null {
+  if (values.length === 0) return null;
+  const sorted = [...values].sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  const value =
+    sorted.length % 2 === 1 ? sorted[mid] : ((sorted[mid - 1] ?? 0) + (sorted[mid] ?? 0)) / 2;
+  return value ?? null;
+}
+
+export async function getAggregatesForScope(scope: {
+  country?: string;
+  waterBodyType?: string;
+  propertyType?: string;
+  destinationId?: number;
+}): Promise<ScopeAggregates> {
+  const payload = await getPayloadClient();
+  const clauses: Where[] = [publicPredicate()];
+  if (scope.country) clauses.push({ 'location.country': { equals: scope.country } });
+  if (scope.waterBodyType) clauses.push({ waterBodyType: { equals: scope.waterBodyType } });
+  if (scope.propertyType) clauses.push({ propertyType: { equals: scope.propertyType } });
+  if (scope.destinationId != null)
+    clauses.push({ 'location.destination': { equals: scope.destinationId } });
+
+  const res = await payload.find({
+    collection: 'properties',
+    where: { and: clauses },
+    limit: 1000,
+    depth: 0,
+    select: { priceEur: true, waterFrontageM: true, propertyType: true },
+  });
+
+  const typeCounts = new Map<string, number>();
+  for (const doc of res.docs) {
+    if (doc.propertyType) {
+      typeCounts.set(doc.propertyType, (typeCounts.get(doc.propertyType) ?? 0) + 1);
+    }
+  }
+  const topPropertyType =
+    [...typeCounts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
+
+  return {
+    count: res.totalDocs,
+    medianPriceEur: median(
+      res.docs.map((d) => d.priceEur).filter((v): v is number => v != null),
+    ),
+    medianFrontageM: median(
+      res.docs.map((d) => d.waterFrontageM).filter((v): v is number => v != null),
+    ),
+    topPropertyType,
+  };
+}
+
+export interface DestinationCount {
+  id: number;
+  name: string;
+  slug: string;
+  count: number;
+}
+
+export async function getDestinationCounts(locale: Locale = 'en'): Promise<DestinationCount[]> {
+  const payload = await getPayloadClient();
+  const destinations = await payload.find({
+    collection: 'destinations',
+    limit: 100,
+    depth: 0,
+    locale,
+    overrideAccess: true,
+  });
+
+  const counts = await Promise.all(
+    destinations.docs.map(async (destination) => {
+      const { totalDocs } = await payload.count({
+        collection: 'properties',
+        where: {
+          and: [publicPredicate(), { 'location.destination': { equals: destination.id } }],
+        },
+      });
+      return {
+        id: destination.id,
+        name: destination.name,
+        slug: destination.slug,
+        count: totalDocs,
+      };
+    }),
+  );
+
+  return counts.filter((c) => c.count > 0).sort((a, b) => b.count - a.count);
+}
+
+export interface AgencyDashboardStats {
+  listingsByStatus: Record<string, number>;
+  expiringWithin14Days: number;
+  leadsLast30Days: number;
+}
+
+export async function getAgencyDashboardStats(
+  agencyId: number,
+): Promise<AgencyDashboardStats> {
+  const payload = await getPayloadClient();
+  const statuses = ['draft', 'pending_review', 'in_market', 'under_offer', 'sold', 'expired'];
+
+  const byStatus = await Promise.all(
+    statuses.map(async (status) => {
+      const { totalDocs } = await payload.count({
+        collection: 'properties',
+        where: { and: [{ agency: { equals: agencyId } }, { status: { equals: status } }] },
+      });
+      return [status, totalDocs] as const;
+    }),
+  );
+
+  const in14Days = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString();
+  const { totalDocs: expiringWithin14Days } = await payload.count({
+    collection: 'properties',
+    where: {
+      and: [
+        { agency: { equals: agencyId } },
+        { status: { in: ['in_market', 'under_offer'] } },
+        { expiresAt: { less_than_equal: in14Days } },
+      ],
+    },
+  });
+
+  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+  const { totalDocs: leadsLast30Days } = await payload.count({
+    collection: 'leads',
+    where: {
+      and: [{ agency: { equals: agencyId } }, { createdAt: { greater_than_equal: thirtyDaysAgo } }],
+    },
+  });
+
+  return {
+    listingsByStatus: Object.fromEntries(byStatus),
+    expiringWithin14Days,
+    leadsLast30Days,
+  };
+}

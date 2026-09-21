@@ -11,6 +11,7 @@ import { convertToEur, getDailyRatesPerEur } from '@/lib/fx';
 import { computeFingerprint } from '@/lib/fingerprint';
 import { revalidatePaths } from '@/lib/revalidate';
 import { slugify } from '@/lib/slug';
+import { toSearchDocument } from '@/lib/search/document';
 import { deletePropertyDocument, upsertPropertyDocument } from '@/lib/search/sync';
 import { isAgencyRole, relationId } from '@/payload/access/tenant';
 
@@ -171,23 +172,7 @@ export const syncAfterChange: CollectionAfterChangeHook = async ({
     `status=${d.status}`,
   );
   if (isPubliclyIndexable(d)) {
-    const location = d.location as PropertyData | undefined;
-    await upsertPropertyDocument({
-      id: String(d.id),
-      slug: d.slug,
-      title: d.title,
-      status: d.status,
-      isSample: Boolean(d.isSample),
-      priceEur: d.priceEur ?? null,
-      propertyType: d.propertyType ?? null,
-      waterBodyType: d.waterBodyType ?? null,
-      waterAccessType: d.waterAccessType ?? [],
-      waterFrontageM: d.waterFrontageM ?? null,
-      maxBoatLoaM: d.maxBoatLoaM ?? null,
-      waterDepthAtBerthM: d.waterDepthAtBerthM ?? null,
-      navigableToOpenSea: Boolean(d.navigableToOpenSea),
-      country: (location?.country as string) ?? null,
-    });
+    await upsertPropertyDocument(toSearchDocument(d));
   } else {
     await deletePropertyDocument(String(d.id));
   }
