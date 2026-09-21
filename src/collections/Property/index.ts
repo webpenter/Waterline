@@ -1,5 +1,7 @@
 import type { CollectionConfig } from 'payload';
 
+import { adminOnly, anyLoggedIn, tenant } from '@/payload/access/tenant';
+
 import {
   BEACH_TYPES,
   CONDITIONS,
@@ -26,6 +28,7 @@ import {
   cleanupAfterDelete,
   computeDerivedFields,
   enforceWaterRule,
+  sanitizeAgencySubmission,
   syncAfterChange,
 } from './hooks';
 
@@ -37,13 +40,20 @@ export const Property: CollectionConfig = {
     description:
       'A listing publishes only with at least one water access type and distance to water ≤ 50 m. This rule is the brand.',
   },
+  access: {
+    // §8.1: admin/editor see all; agency_admin own agency; agency_agent own listings only.
+    read: tenant({ agentField: 'agent' }),
+    create: anyLoggedIn,
+    update: tenant({ agentField: 'agent' }),
+    delete: adminOnly,
+  },
   versions: {
     drafts: { autosave: true },
     maxPerDoc: 25,
   },
   hooks: {
     beforeValidate: [enforceWaterRule],
-    beforeChange: [computeDerivedFields],
+    beforeChange: [sanitizeAgencySubmission, computeDerivedFields],
     afterChange: [syncAfterChange],
     afterDelete: [cleanupAfterDelete],
   },

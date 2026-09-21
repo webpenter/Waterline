@@ -6,11 +6,13 @@ import type {
 } from 'payload';
 import { ValidationError } from 'payload';
 
+import { logAudit } from '@/lib/audit';
 import { convertToEur, getDailyRatesPerEur } from '@/lib/fx';
 import { computeFingerprint } from '@/lib/fingerprint';
 import { revalidatePaths } from '@/lib/revalidate';
 import { slugify } from '@/lib/slug';
 import { deletePropertyDocument, upsertPropertyDocument } from '@/lib/search/sync';
+import { isAgencyRole, relationId } from '@/payload/access/tenant';
 
 import type { Currency } from './enums';
 import { LISTING_LIFETIME_DAYS } from './enums';
@@ -21,6 +23,44 @@ type PropertyData = Record<string, unknown>;
 function merged(data: PropertyData | undefined, originalDoc: PropertyData | undefined) {
   return { ...(originalDoc ?? {}), ...(data ?? {}) } as PropertyData;
 }
+
+/**
+ * §8.1 submission gate for agency roles, applied before anything else:
+ * - the listing is always owned by the submitter's own agency (and, for an
+ *   agency_agent, routed to their own agent profile);
+ * - `featured` and `moderation` are editorial-only — agency changes are dropped;
+ * - agencies can never set status=in_market or publish directly: the attempt
+ *   becomes status=pending_review, saved as a draft for the review queue.
+ */
+export const sanitizeAgencySubmission: CollectionBeforeChangeHook = ({
+  data,
+  req,
+  originalDoc,
+}) => {
+  const user = req.user;
+  if (!user || !isAgencyRole(user.role)) return data;
+
+  const out: PropertyData = { ...data };
+  const original = (originalDoc ?? {}) as PropertyData;
+
+  out.agency = relationId(user.agency as number | { id: number } | null) ?? original.agency;
+  if (user.role === 'agency_agent') {
+    out.agent =
+      relationId(user.agentProfile as number | { id: number } | null) ?? original.agent;
+  }
+
+  out.featured = original.featured ?? false;
+  out.moderation = original.moderation ?? 'unreviewed';
+
+  const wantsInMarket = out.status === 'in_market';
+  const wantsPublish = out._status === 'published';
+  if (wantsInMarket || wantsPublish) {
+    out.status = 'pending_review';
+    out._status = 'draft';
+  }
+
+  return out;
+};
 
 /**
  * The water rule (spec §2.2). Publishing an inadmissible listing throws a
@@ -113,8 +153,23 @@ function isPubliclyIndexable(doc: PropertyData): boolean {
   );
 }
 
-export const syncAfterChange: CollectionAfterChangeHook = async ({ doc }) => {
+export const syncAfterChange: CollectionAfterChangeHook = async ({
+  doc,
+  previousDoc,
+  operation,
+  req,
+}) => {
   const d = doc as PropertyData;
+
+  const justPublished =
+    d._status === 'published' && (previousDoc as PropertyData | undefined)?._status !== 'published';
+  await logAudit(
+    req,
+    justPublished ? 'publish' : operation === 'create' ? 'create' : 'update',
+    'properties',
+    String(d.id),
+    `status=${d.status}`,
+  );
   if (isPubliclyIndexable(d)) {
     const location = d.location as PropertyData | undefined;
     await upsertPropertyDocument({
@@ -144,8 +199,9 @@ export const syncAfterChange: CollectionAfterChangeHook = async ({ doc }) => {
   return doc;
 };
 
-export const cleanupAfterDelete: CollectionAfterDeleteHook = async ({ doc }) => {
+export const cleanupAfterDelete: CollectionAfterDeleteHook = async ({ doc, req }) => {
   const d = doc as PropertyData;
+  await logAudit(req, 'delete', 'properties', String(d.id), String(d.slug ?? ''));
   await deletePropertyDocument(String(d.id));
   const paths = ['/'];
   if (typeof d.slug === 'string' && d.slug) paths.push(`/property/${d.slug}`);
