@@ -13,7 +13,15 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${displayFont.variable} ${bodyFont.variable}`}>
+    // suppressHydrationWarning covers ONLY this element's attributes: browser
+    // extensions (Grammarly, dark-mode, translators) inject attrs into <html>
+    // before React hydrates. Real mismatches deeper in the tree still surface,
+    // and tests/console-errors.spec.ts keeps the tree hydration-clean in CI.
+    <html
+      lang="en"
+      className={`${displayFont.variable} ${bodyFont.variable}`}
+      suppressHydrationWarning
+    >
       <body>{children}</body>
     </html>
   );
