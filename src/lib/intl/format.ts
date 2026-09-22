@@ -77,3 +77,7 @@ export function formatLength(
   const value = Math.round(meters * 10) / 10;
   return `${new Intl.NumberFormat(locale).format(value)} m`;
 }
+
+export function formatDate(iso: string, locale = 'en'): string {
+  return new Intl.DateTimeFormat(locale, { dateStyle: 'long' }).format(new Date(iso));
+}

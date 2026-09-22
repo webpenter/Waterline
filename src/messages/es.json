@@ -1,8 +1,4 @@
 {
-  "_meta": {
-    "status": "awaiting-translation",
-    "source": "en.json"
-  },
   "common": {
     "brandTagline": "",
     "viewAll": "",
@@ -66,6 +62,7 @@
     "mapPanelLabel": "",
     "mapUnavailable": "",
     "clearFilters": "",
+    "removeFilterLabel": "",
     "filterFitsBoat": "",
     "filterFitsBoatDraft": "",
     "filterMinFrontage": "",
@@ -137,7 +134,10 @@
     "formSending": "",
     "formSuccess": "",
     "formError": "",
-    "formConsentRequired": ""
+    "formConsentRequired": "",
+    "formErrorSummary": "",
+    "formErrorName": "",
+    "formErrorEmail": ""
   },
   "footer": {
     "destinationsTitle": "",
@@ -153,6 +153,7 @@
     "statsMedianFrontage": "",
     "statsTopType": "",
     "viewAllCta": "",
+    "listingsHeading": "",
     "siblingsTitle": "",
     "faqTitle": "",
     "enquiryTitle": "",
@@ -214,6 +215,15 @@
     "sampleLeakWarning": "",
     "sampleLeakOk": ""
   },
+  "journal": {
+    "title": "",
+    "sub": "",
+    "empty": "",
+    "publishedOn": "",
+    "backToJournal": "",
+    "breadcrumbLabel": "",
+    "sampleNotice": ""
+  },
   "preferences": {
     "language": "",
     "currency": "",
@@ -221,5 +231,9 @@
     "unitsMetric": "",
     "unitsImperial": "",
     "originalPrice": ""
+  },
+  "_meta": {
+    "status": "awaiting-translation",
+    "source": "en.json"
   }
 }

@@ -76,6 +76,9 @@ export default async function ListWithUsPage({ params }: ListWithUsPageProps) {
               success: tl('formSuccess'),
               error: tl('formError'),
               consentRequired: tl('formConsentRequired'),
+              errorSummary: tl('formErrorSummary'),
+              errorName: tl('formErrorName'),
+              errorEmail: tl('formErrorEmail'),
             }}
           />
         </section>

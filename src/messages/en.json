@@ -62,6 +62,7 @@
     "mapPanelLabel": "Results map",
     "mapUnavailable": "Map preview — interactive tiles load with a map key.",
     "clearFilters": "Clear all filters",
+    "removeFilterLabel": "Remove filter: {filter}",
     "filterFitsBoat": "Fits {loa} m",
     "filterFitsBoatDraft": "Fits {loa} m · draft {draft} m",
     "filterMinFrontage": "Frontage ≥ {m} m",
@@ -133,7 +134,10 @@
     "formSending": "Sending…",
     "formSuccess": "Thank you — the agency has received your enquiry and will reply directly.",
     "formError": "Something went wrong sending your enquiry. Please try again.",
-    "formConsentRequired": "Please accept the consent statement so we can pass your enquiry to the agency."
+    "formConsentRequired": "Please accept the consent statement so we can pass your enquiry to the agency.",
+    "formErrorSummary": "Please correct the following before sending:",
+    "formErrorName": "Enter your name (at least 2 characters).",
+    "formErrorEmail": "Enter a valid email address."
   },
   "footer": {
     "destinationsTitle": "Destinations",
@@ -149,6 +153,7 @@
     "statsMedianFrontage": "Median frontage",
     "statsTopType": "Most common type",
     "viewAllCta": "View all {count} properties",
+    "listingsHeading": "Current listings",
     "siblingsTitle": "Related waterfront searches",
     "faqTitle": "Frequently asked questions",
     "enquiryTitle": "Enquire about this area",
@@ -209,6 +214,15 @@
     "leaderboardTitle": "Agency leaderboard",
     "sampleLeakWarning": "Sample listings are publicly live while demo mode is OFF — purge them before launch.",
     "sampleLeakOk": "No sample listings are publicly exposed."
+  },
+  "journal": {
+    "title": "The Journal",
+    "sub": "Editorial on mooring rules, shoreline tenure and the practicalities of waterfront ownership.",
+    "empty": "The first articles are in preparation and publish soon.",
+    "publishedOn": "Published {date}",
+    "backToJournal": "All articles",
+    "breadcrumbLabel": "Breadcrumb",
+    "sampleNotice": "Sample article — demonstration content, not editorial advice."
   },
   "preferences": {
     "language": "Language",

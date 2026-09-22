@@ -301,6 +301,9 @@ export default async function PropertyPage({ params }: DetailPageProps) {
                 success: t('formSuccess'),
                 error: t('formError'),
                 consentRequired: t('formConsentRequired'),
+                errorSummary: t('formErrorSummary'),
+                errorName: t('formErrorName'),
+                errorEmail: t('formErrorEmail'),
               }}
             />
             <a

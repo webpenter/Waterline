@@ -49,6 +49,9 @@ export default async function ContactPage({ params }: ContactPageProps) {
             success: tl('formSuccess'),
             error: tl('formError'),
             consentRequired: tl('formConsentRequired'),
+            errorSummary: tl('formErrorSummary'),
+            errorName: tl('formErrorName'),
+            errorEmail: tl('formErrorEmail'),
           }}
         />
         <p className="mt-8 text-xs text-ink-soft">

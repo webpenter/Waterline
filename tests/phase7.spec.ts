@@ -79,7 +79,7 @@ test.describe('Lead pages', () => {
     });
     await page.getByRole('button', { name: 'Send enquiry' }).click();
     await expect(
-      page.getByText('Please accept the consent statement', { exact: false }),
+      page.getByText('Please accept the consent statement', { exact: false }).first(),
     ).toBeVisible();
     expect(posted).toBe(false);
   });

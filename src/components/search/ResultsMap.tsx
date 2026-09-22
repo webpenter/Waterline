@@ -88,7 +88,10 @@ export function ResultsMap({ markers, panelLabel, unavailableNote }: ResultsMapP
       }
 
       // Search as I move the map: 350 ms debounce writing bbox to the URL (§10.2).
-      instance.on('moveend', () => {
+      // Only user-driven moves count — the initial fitBounds also fires
+      // moveend, and writing bbox on load would pollute every search URL.
+      instance.on('moveend', (event: { originalEvent?: unknown }) => {
+        if (!event.originalEvent) return;
         clearTimeout(timer);
         timer = setTimeout(() => {
           const mapBounds = instance.getBounds();

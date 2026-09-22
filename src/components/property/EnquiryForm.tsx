@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useId, useRef, useState, type FormEvent } from 'react';
 
 import { leadSchema } from '@/lib/schemas/lead';
 
@@ -15,6 +15,9 @@ interface EnquiryFormLabels {
   success: string;
   error: string;
   consentRequired: string;
+  errorSummary: string;
+  errorName: string;
+  errorEmail: string;
 }
 
 interface EnquiryFormProps {
@@ -25,28 +28,52 @@ interface EnquiryFormProps {
   labels: EnquiryFormLabels;
 }
 
+type FieldName = 'name' | 'email' | 'consent';
+
 /**
  * The listing enquiry form (§10.3, copy §11.2). Posts to /api/leads with a
  * honeypot; consent is mandatory before anything is sent. All labels arrive
  * translated as props — no intl runtime on the client.
+ *
+ * §15 form accessibility: labels are real <label>s, every failed submit
+ * focuses an error summary whose entries link to their fields, and invalid
+ * fields carry aria-invalid + aria-describedby pointing at their message.
  */
 export function EnquiryForm({ propertyId, source = 'property', locale, labels }: EnquiryFormProps) {
-  const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error' | 'consent'>(
-    'idle',
-  );
+  const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
+  const [fieldErrors, setFieldErrors] = useState<Partial<Record<FieldName, string>>>({});
+  const summaryRef = useRef<HTMLDivElement>(null);
+  const idBase = useId();
   // Anti-bot timing check: stamped after hydration so SSR markup stays stable.
   const [startedAt, setStartedAt] = useState<number | undefined>(undefined);
   useEffect(() => setStartedAt(Date.now()), []);
+
+  const fieldId = (field: FieldName) => `${idBase}-${field}`;
+  const errorId = (field: FieldName) => `${idBase}-${field}-error`;
+
+  function validate(data: FormData): Partial<Record<FieldName, string>> {
+    const errors: Partial<Record<FieldName, string>> = {};
+    if (String(data.get('name') ?? '').trim().length < 2) errors.name = labels.errorName;
+    const email = String(data.get('email') ?? '');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.email = labels.errorEmail;
+    if (data.get('consent') !== 'on') errors.consent = labels.consentRequired;
+    return errors;
+  }
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = event.currentTarget;
     const data = new FormData(form);
 
-    if (data.get('consent') !== 'on') {
-      setStatus('consent');
+    const errors = validate(data);
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      setStatus('idle');
+      // Focus lands on the summary after it renders (§15).
+      requestAnimationFrame(() => summaryRef.current?.focus());
       return;
     }
+    setFieldErrors({});
 
     const candidate = {
       name: data.get('name'),
@@ -92,27 +119,72 @@ export function EnquiryForm({ propertyId, source = 'property', locale, labels }:
     );
   }
 
+  const errorEntries = Object.entries(fieldErrors) as Array<[FieldName, string]>;
+
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-3" noValidate>
-      <label className="flex flex-col gap-1 text-sm text-ink">
+      {errorEntries.length > 0 ? (
+        <div
+          ref={summaryRef}
+          tabIndex={-1}
+          role="alert"
+          className="border border-danger bg-danger/10 p-3 text-sm text-danger"
+        >
+          <p className="font-medium">{labels.errorSummary}</p>
+          <ul className="mt-1 list-inside list-disc">
+            {errorEntries.map(([field, message]) => (
+              <li key={field}>
+                <a
+                  href={`#${fieldId(field)}`}
+                  className="underline"
+                  onClick={(event) => {
+                    event.preventDefault();
+                    document.getElementById(fieldId(field))?.focus();
+                  }}
+                >
+                  {message}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
+      <label className="flex flex-col gap-1 text-sm text-ink" htmlFor={fieldId('name')}>
         {labels.name}
         <input
+          id={fieldId('name')}
           name="name"
           required
           minLength={2}
           autoComplete="name"
+          aria-invalid={fieldErrors.name ? true : undefined}
+          aria-describedby={fieldErrors.name ? errorId('name') : undefined}
           className="h-10 rounded-md border border-line bg-white px-3 text-base text-ink"
         />
+        {fieldErrors.name ? (
+          <span id={errorId('name')} className="text-xs text-danger">
+            {fieldErrors.name}
+          </span>
+        ) : null}
       </label>
-      <label className="flex flex-col gap-1 text-sm text-ink">
+      <label className="flex flex-col gap-1 text-sm text-ink" htmlFor={fieldId('email')}>
         {labels.email}
         <input
+          id={fieldId('email')}
           name="email"
           type="email"
           required
           autoComplete="email"
+          aria-invalid={fieldErrors.email ? true : undefined}
+          aria-describedby={fieldErrors.email ? errorId('email') : undefined}
           className="h-10 rounded-md border border-line bg-white px-3 text-base text-ink"
         />
+        {fieldErrors.email ? (
+          <span id={errorId('email')} className="text-xs text-danger">
+            {fieldErrors.email}
+          </span>
+        ) : null}
       </label>
       <label className="flex flex-col gap-1 text-sm text-ink">
         {labels.phone}
@@ -140,13 +212,20 @@ export function EnquiryForm({ propertyId, source = 'property', locale, labels }:
         aria-hidden="true"
         className="sr-only"
       />
-      <label className="flex items-start gap-2 text-xs text-ink-soft">
-        <input type="checkbox" name="consent" className="mt-0.5" />
+      <label className="flex items-start gap-2 text-xs text-ink-soft" htmlFor={fieldId('consent')}>
+        <input
+          id={fieldId('consent')}
+          type="checkbox"
+          name="consent"
+          aria-invalid={fieldErrors.consent ? true : undefined}
+          aria-describedby={fieldErrors.consent ? errorId('consent') : undefined}
+          className="mt-0.5 size-4"
+        />
         <span>{labels.consent}</span>
       </label>
-      {status === 'consent' ? (
-        <p role="alert" className="text-xs text-danger">
-          {labels.consentRequired}
+      {fieldErrors.consent ? (
+        <p id={errorId('consent')} className="text-xs text-danger">
+          {fieldErrors.consent}
         </p>
       ) : null}
       {status === 'error' ? (

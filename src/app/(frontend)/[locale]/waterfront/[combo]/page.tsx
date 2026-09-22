@@ -25,6 +25,12 @@ import {
   passesEditorialGate,
   rankSiblings,
 } from '@/lib/seo/combos';
+import { fallbackSearch } from '@/lib/sample/fallback';
+import {
+  fallbackLandingPages,
+  findFallbackLandingPage,
+  isFallbackContent,
+} from '@/lib/sample/fallback-content';
 import { buildPageMetadata } from '@/lib/seo/metadata';
 import { breadcrumbJsonLd, faqPageJsonLd } from '@/lib/seo/jsonld';
 import type { LandingPage } from '@/payload-types';
@@ -50,8 +56,10 @@ async function loadGatedPage(combo: string, locale: string): Promise<LandingPage
     const page = await getLandingPageBySlug(combo, locale as Locale);
     return page && passesEditorialGate(page) ? page : null;
   } catch (err) {
-    console.warn('[landing] load failed, treating as not found:', err);
-    return null;
+    // DB-error path only (§13.12): the gated demo landing keeps the route
+    // demonstrable; unknown combos still 404 and demo pages are noindexed.
+    console.warn('[landing] load failed, trying fallback inventory:', err);
+    return findFallbackLandingPage(combo);
   }
 }
 
@@ -65,6 +73,28 @@ async function safeAggregates(page: LandingPage): Promise<ScopeAggregates> {
       destinationId: filters.destinationId,
     });
   } catch {
+    if (isFallbackContent(page)) {
+      // Demo aggregates derived from the same deterministic sample inventory
+      // the cards come from — the page is noindexed, so nothing here is
+      // published as a market claim (§13.9).
+      const { hits, total } = fallbackSearch({ ...comboToFilters(page), limit: 100 });
+      const median = (values: number[]): number | null => {
+        if (values.length === 0) return null;
+        const sorted = [...values].sort((a, b) => a - b);
+        return sorted[Math.floor(sorted.length / 2)];
+      };
+      return {
+        count: total,
+        medianPriceEur: median(
+          hits.map((h) => h.priceEur).filter((v): v is number => typeof v === 'number'),
+        ),
+        medianFrontageM: median(
+          hits.map((h) => h.waterFrontageM).filter((v): v is number => typeof v === 'number'),
+        ),
+        topPropertyType:
+          typeof hits[0]?.propertyType === 'string' ? (hits[0].propertyType as string) : null,
+      };
+    }
     return { count: 0, medianPriceEur: null, medianFrontageM: null, topPropertyType: null };
   }
 }
@@ -74,6 +104,9 @@ async function safeListings(page: LandingPage): Promise<SearchHit[]> {
     const result = await searchPropertiesPostgres({ ...comboToFilters(page), limit: 12 });
     return result.hits;
   } catch {
+    if (isFallbackContent(page)) {
+      return fallbackSearch({ ...comboToFilters(page), limit: 12 }).hits;
+    }
     return [];
   }
 }
@@ -83,6 +116,9 @@ async function safeSiblings(page: LandingPage, locale: string): Promise<LandingP
     const all = await getPublishedLandingPages(locale as Locale);
     return rankSiblings(page, all.filter(passesEditorialGate), 8);
   } catch {
+    if (isFallbackContent(page)) {
+      return rankSiblings(page, fallbackLandingPages(), 8);
+    }
     return [];
   }
 }
@@ -106,13 +142,17 @@ export async function generateMetadata({ params }: ComboPageProps): Promise<Meta
     .filter(Boolean)
     .join(' ');
 
-  return buildPageMetadata({
-    title: page.metaTitle ?? `${page.title} — ${aggregates.count} for sale`,
-    description: page.metaDescription ?? generatedDescription,
-    path: `/waterfront/${combo}`,
-    locale,
-    ogImage: `/api/og/landing/${combo}`,
-  });
+  return {
+    ...buildPageMetadata({
+      title: page.metaTitle ?? `${page.title} — ${aggregates.count} for sale`,
+      description: page.metaDescription ?? generatedDescription,
+      path: `/waterfront/${combo}`,
+      locale,
+      ogImage: `/api/og/landing/${combo}`,
+    }),
+    // Demo fallback landing pages never enter the index (§13.12).
+    ...(isFallbackContent(page) ? { robots: { index: false, follow: false } } : {}),
+  };
 }
 
 export default async function ComboPage({ params }: ComboPageProps) {
@@ -170,6 +210,8 @@ export default async function ComboPage({ params }: ComboPageProps) {
 
         {listings.length > 0 ? (
           <section className="px-7 py-7">
+            {/* sr-only h2 keeps the card h3s in a valid heading order (§15). */}
+            <h2 className="sr-only">{t('listingsHeading')}</h2>
             <div className="flex flex-col gap-3">
               {listings.map((hit) => (
                 <SearchResultCard key={hit.id} hit={hit} />
@@ -238,6 +280,9 @@ export default async function ComboPage({ params }: ComboPageProps) {
               success: tl('formSuccess'),
               error: tl('formError'),
               consentRequired: tl('formConsentRequired'),
+              errorSummary: tl('formErrorSummary'),
+              errorName: tl('formErrorName'),
+              errorEmail: tl('formErrorEmail'),
             }}
           />
         </section>

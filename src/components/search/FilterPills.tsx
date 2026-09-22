@@ -113,16 +113,20 @@ export async function FilterPills({ params }: { params: SearchParams }) {
         <Link
           key={pill.label}
           href={`/search${queryWithout(params, pill.removes)}`}
+          aria-label={t('removeFilterLabel', { filter: pill.label })}
           className={
             pill.key
               ? 'border border-tide px-3 py-1.5 text-xs text-tide hover:bg-shell'
               : 'border border-line px-3 py-1.5 text-xs text-ink-soft hover:bg-shell'
           }
         >
-          {pill.label} ×
+          {pill.label} <span aria-hidden="true">×</span>
         </Link>
       ))}
-      <Link href="/search" className="ml-auto text-xs text-tide underline-offset-2 hover:underline">
+      <Link
+        href="/search"
+        className="ml-auto py-1.5 text-xs text-tide underline-offset-2 hover:underline"
+      >
         {t('clearFilters')}
       </Link>
     </div>

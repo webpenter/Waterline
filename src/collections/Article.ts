@@ -12,7 +12,8 @@ export const Article: CollectionConfig = {
   },
   versions: { drafts: { autosave: true } },
   access: {
-    read: anyLoggedIn,
+    // Published articles are public content (§6.8); drafts stay backoffice-only.
+    read: ({ req }) => (anyLoggedIn({ req }) ? true : { _status: { equals: 'published' } }),
     create: adminOrEditor,
     update: adminOrEditor,
     delete: adminOrEditor,
