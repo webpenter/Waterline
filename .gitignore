@@ -35,6 +35,8 @@ pnpm-debug.log*
 # Deploy
 /.vercel/
 
-# OS files
+# OS & IDE files
 .DS_Store
 *.pem
+.cursor/
+.vscode/

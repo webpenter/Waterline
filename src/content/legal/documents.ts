@@ -68,7 +68,8 @@ export const LEGAL_DOCUMENTS: LegalDocument[] = [
   {
     slug: 'cookies',
     title: 'Cookie Policy',
-    description: 'The complete list of cookies this site sets, and what each one does.',
+    description:
+      'The complete list of cookies WATERLINE sets, what each one does, how long it lives, and how analytics stays off until you explicitly consent to it.',
     reviewNote: REVIEW_NOTE,
     sections: [
       {
@@ -91,7 +92,8 @@ export const LEGAL_DOCUMENTS: LegalDocument[] = [
   {
     slug: 'terms',
     title: 'Terms of Use',
-    description: 'The conditions under which this site and its listing data may be used.',
+    description:
+      'The conditions for using WATERLINE and its listing data — including the prohibition on scraping and bulk extraction, and how sample content is marked.',
     reviewNote: REVIEW_NOTE,
     sections: [
       {
