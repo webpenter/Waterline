@@ -19,7 +19,7 @@
     "bundle:budget": "node scripts/check-bundle-budget.mjs",
     "payload": "payload",
     "payload:generate:types": "payload generate:types",
-    "seed": "tsx src/scripts/seed.ts",
+    "seed": "tsx src/scripts/seed-sample-data.ts",
     "sample:purge": "tsx src/scripts/purge-samples.ts",
     "search:reindex": "tsx src/scripts/reindex-search.ts",
     "audit:seo": "tsx src/scripts/audit-seo.ts",

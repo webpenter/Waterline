@@ -107,6 +107,12 @@ export const Media: CollectionConfig = {
       admin: { description: 'Licence position for this asset (§13.2), e.g. "agency-supplied", "Unsplash".' },
     },
     { name: 'sourceUrl', type: 'text' },
+    {
+      name: 'sourceId',
+      type: 'text',
+      index: true,
+      admin: { description: 'Source-API photo id (§13.2.3) — powers dedupe and purge.' },
+    },
     { name: 'blurhash', type: 'text', admin: { readOnly: true } },
     { name: 'dominantColor', type: 'text', admin: { readOnly: true } },
   ],
