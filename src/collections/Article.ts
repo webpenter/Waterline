@@ -1,5 +1,6 @@
 import type { CollectionConfig } from 'payload';
 
+import { revalidatePaths } from '@/lib/revalidate';
 import { adminOrEditor, anyLoggedIn } from '@/payload/access/tenant';
 
 // The Journal (§6.8, §10.5): editorial that answers real questions —
@@ -17,6 +18,27 @@ export const Article: CollectionConfig = {
     create: adminOrEditor,
     update: adminOrEditor,
     delete: adminOrEditor,
+  },
+  hooks: {
+    afterChange: [
+      async ({ doc }) => {
+        const paths = ['/journal'];
+        if (typeof doc.slug === 'string' && doc.slug) {
+          paths.push(`/journal/${doc.slug}`);
+        }
+        await revalidatePaths(paths);
+        return doc;
+      },
+    ],
+    afterDelete: [
+      async ({ doc }) => {
+        const paths = ['/journal'];
+        if (typeof doc.slug === 'string' && doc.slug) {
+          paths.push(`/journal/${doc.slug}`);
+        }
+        await revalidatePaths(paths);
+      },
+    ],
   },
   fields: [
     { name: 'title', type: 'text', required: true, localized: true },

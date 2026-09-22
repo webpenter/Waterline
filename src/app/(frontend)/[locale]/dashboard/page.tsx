@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
-import dynamic from 'next/dynamic';
 import { headers } from 'next/headers';
 import Link from 'next/link';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 
+import { LeadsChartLazy as LeadsChart } from '@/components/dashboard/LeadsChartLazy';
 import { SiteFooter } from '@/components/layout/SiteFooter';
 import { SiteHeader } from '@/components/layout/SiteHeader';
 import { getPayloadClient } from '@/lib/db';
@@ -19,10 +19,6 @@ import { relationId } from '@/payload/access/tenant';
 // Prompt 15 B/C: read-only backoffice dashboards, role-gated via the Payload
 // session. Never indexable; the Recharts chunk loads only on this route.
 export const metadata: Metadata = { robots: { index: false, follow: false } };
-
-const LeadsChart = dynamic(() =>
-  import('@/components/dashboard/LeadsChart').then((m) => m.LeadsChart),
-);
 
 interface DashboardPageProps {
   params: Promise<{ locale: string }>;

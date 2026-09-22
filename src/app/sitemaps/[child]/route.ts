@@ -78,6 +78,7 @@ function staticEntries(): SitemapEntry[] {
     { path: '/search' },
     { path: '/contact' },
     { path: '/list-with-us' },
+    { path: '/journal' },
   ];
 }
 

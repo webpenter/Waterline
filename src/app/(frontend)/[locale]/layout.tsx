@@ -4,6 +4,7 @@ import { NextIntlClientProvider } from 'next-intl';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import React from 'react';
 
+import { AnalyticsScript } from '@/components/layout/AnalyticsScript';
 import { CookieConsent } from '@/components/layout/CookieConsent';
 import { brand } from '@/config/brand';
 import { LOCALES, type AppLocale } from '@/i18n/routing';
@@ -78,6 +79,7 @@ export default async function LocaleLayout({
             marketing: t('marketing'),
           }}
         />
+        <AnalyticsScript />
       </body>
     </html>
   );

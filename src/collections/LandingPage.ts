@@ -1,5 +1,6 @@
 import type { CollectionConfig } from 'payload';
 
+import { revalidatePaths } from '@/lib/revalidate';
 import { adminOrEditor, anyLoggedIn } from '@/payload/access/tenant';
 
 import { PROPERTY_TYPES, WATER_BODY_TYPES } from './Property/enums';
@@ -19,6 +20,27 @@ export const LandingPage: CollectionConfig = {
     create: adminOrEditor,
     update: adminOrEditor,
     delete: adminOrEditor,
+  },
+  hooks: {
+    afterChange: [
+      async ({ doc }) => {
+        const paths = ['/destinations'];
+        if (typeof doc.slug === 'string' && doc.slug) {
+          paths.push(`/waterfront/${doc.slug}`);
+        }
+        await revalidatePaths(paths);
+        return doc;
+      },
+    ],
+    afterDelete: [
+      async ({ doc }) => {
+        const paths = ['/destinations'];
+        if (typeof doc.slug === 'string' && doc.slug) {
+          paths.push(`/waterfront/${doc.slug}`);
+        }
+        await revalidatePaths(paths);
+      },
+    ],
   },
   fields: [
     { name: 'title', type: 'text', required: true, localized: true },

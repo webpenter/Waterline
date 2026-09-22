@@ -170,7 +170,7 @@ export default async function HomePage({
           <p className="sr-only">{t('signatureSub')}</p>
           <div className="grid gap-5 md:grid-cols-3">
             {featured.map((property, index) => (
-              <PropertyCard key={property.id} property={property} priority={index < 3} />
+              <PropertyCard key={property.id} property={property} priority={index === 0} />
             ))}
           </div>
         </section>

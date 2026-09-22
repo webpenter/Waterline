@@ -6,13 +6,18 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 
 import { SiteFooter } from '@/components/layout/SiteFooter';
 import { SiteHeader } from '@/components/layout/SiteHeader';
-import { getArticleBySlug } from '@/lib/db/articles';
+import { getArticleBySlug, getPublishedArticles } from '@/lib/db/articles';
 import type { Locale } from '@/lib/db';
 import { isFallbackContent } from '@/lib/sample/fallback-content';
 import { hreflangAlternates } from '@/lib/seo/hreflang';
 import { formatDate } from '@/lib/intl/format';
 
 export const revalidate = 3600;
+
+export async function generateStaticParams(): Promise<Array<{ slug: string }>> {
+  const articles = await getPublishedArticles('en');
+  return articles.map((article) => ({ slug: article.slug }));
+}
 
 interface ArticlePageProps {
   params: Promise<{ locale: string; slug: string }>;
