@@ -9,6 +9,7 @@ import {
   LeadToAgencyEmail,
 } from '@/lib/email/templates/lead-emails';
 import { resolveLeadRecipient } from '@/lib/leads/routing';
+import { checkRateLimit, rateLimitResponse } from '@/lib/rate-limit';
 import { leadSchema, MIN_FILL_MS, type LeadInput } from '@/lib/schemas/lead';
 import type { Agency, Agent } from '@/payload-types';
 
@@ -16,20 +17,7 @@ import type { Agency, Agent } from '@/payload-types';
 // bots silently (honeypot + timing check), store with consent record, route
 // agent → agency inbox → internal desk, email via Resend from our domain with
 // reply-to the enquirer. Sample listings log the lead but never email an
-// agency. The in-memory limiter is per-instance; the durable store arrives
-// with the Prompt 18 hardening pass.
-
-const WINDOW_MS = 60 * 60 * 1000;
-const MAX_PER_WINDOW = 5;
-const hits = new Map<string, number[]>();
-
-function rateLimited(ip: string): boolean {
-  const now = Date.now();
-  const recent = (hits.get(ip) ?? []).filter((t) => now - t < WINDOW_MS);
-  recent.push(now);
-  hits.set(ip, recent);
-  return recent.length > MAX_PER_WINDOW;
-}
+// agency. Rate limiting is enforced via checkRateLimit().
 
 function isBot(parsed: LeadInput): boolean {
   if (parsed.website !== undefined && parsed.website !== '') return true;
@@ -39,8 +27,9 @@ function isBot(parsed: LeadInput): boolean {
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown';
-  if (rateLimited(ip)) {
-    return NextResponse.json({ ok: false }, { status: 429 });
+  const limitResult = checkRateLimit(request, 'leads', { windowMs: 60 * 60 * 1000, max: 5 });
+  if (!limitResult.success) {
+    return rateLimitResponse(limitResult);
   }
 
   let parsed: LeadInput;

@@ -71,7 +71,13 @@ export const Users: CollectionConfig = {
     useAsTitle: 'email',
     defaultColumns: ['email', 'name', 'role', 'agency'],
   },
-  auth: true,
+  // §16.1 auth hardening: brute-force lockout at the collection level. TOTP
+  // 2FA for admin/agency_admin is a deploy-time plugin install (Prompt 19/20,
+  // see DECISIONS.md) — it needs a live admin UI to enrol against.
+  auth: {
+    maxLoginAttempts: 5,
+    lockTime: 10 * 60 * 1000,
+  },
   access: {
     read: readUsers,
     create: writeUsers,

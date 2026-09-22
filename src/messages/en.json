@@ -230,6 +230,9 @@
     "breadcrumbLabel": "Breadcrumb",
     "sampleNotice": "Sample article — demonstration content, not editorial advice."
   },
+  "legal": {
+    "reviewNote": "Standing version — this document describes how the platform operates today and is subject to final review by legal counsel before launch."
+  },
   "preferences": {
     "language": "Language",
     "currency": "Currency",

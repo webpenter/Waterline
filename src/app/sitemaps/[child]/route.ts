@@ -79,6 +79,9 @@ function staticEntries(): SitemapEntry[] {
     { path: '/contact' },
     { path: '/list-with-us' },
     { path: '/journal' },
+    { path: '/legal/privacy' },
+    { path: '/legal/cookies' },
+    { path: '/legal/terms' },
   ];
 }
 

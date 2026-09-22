@@ -2,3 +2,29 @@ allowBuilds:
   esbuild: true
   sharp: true
   unrs-resolver: true
+
+# §16.1 dependency audit: force patched transitives (Next 15.4 pins sharp
+# 0.34; an old postcss rides in transitively).
+overrides:
+  "sharp@<0.35.4": ">=0.35.4"
+  "postcss@>=8.0.0 <8.5.18": ">=8.5.18"
+
+# Next.js advisories fixed only in 15.5.16+/16.x — outside @payloadcms/next's
+# peer range for the spec-pinned Next 15.4 line. Dispositions in DECISIONS.md
+# (image optimizer disabled, Vercel hosting, WAF rate limits). Remove with the
+# Next 16 bump at project close-out.
+auditConfig:
+  ignoreGhsas:
+    - GHSA-q4gf-8mx6-v5v3
+    - GHSA-8h8q-6873-q5fj
+    - GHSA-26hh-7cqf-hhc6
+    - GHSA-mg66-mrh9-m8jx
+    - GHSA-c4j6-fc7j-m34r
+    - GHSA-492v-c6pp-mqqv
+    - GHSA-267c-6grr-h53f
+    - GHSA-36qx-fr4f-26g5
+    - GHSA-m99w-x7hq-7vfj
+    - GHSA-89xv-2m56-2m9x
+    - GHSA-p9j2-gv94-2wf4
+    - GHSA-p293-qw3h-jr36
+    - GHSA-2xp9-vwfh-vxw4

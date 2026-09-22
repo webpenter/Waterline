@@ -1,3 +1,5 @@
+import { timingSafeEqual } from 'node:crypto';
+
 import { NextResponse, type NextRequest } from 'next/server';
 
 import { getPayloadClient } from '@/lib/db';
@@ -25,8 +27,15 @@ export async function POST(
     overrideAccess: true,
   });
   const agency = agencies.docs[0];
+  // §16.1: timing-safe token comparison — a plain !== leaks match length.
   const token = request.headers.get('x-feed-token');
-  if (!agency || !agency.feed?.feedToken || token !== agency.feed.feedToken) {
+  const expected = agency?.feed?.feedToken;
+  const tokenValid =
+    typeof token === 'string' &&
+    typeof expected === 'string' &&
+    token.length === expected.length &&
+    timingSafeEqual(Buffer.from(token), Buffer.from(expected));
+  if (!agency?.feed || !tokenValid) {
     return NextResponse.json({ ok: false }, { status: 401 });
   }
 

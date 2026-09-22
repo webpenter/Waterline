@@ -2,6 +2,7 @@ import createIntlMiddleware from 'next-intl/middleware';
 import { NextResponse, type NextRequest } from 'next/server';
 
 import { DEFAULT_LOCALE, LOCALES, routing, type AppLocale } from './i18n/routing';
+import { applySecurityHeaders } from './lib/security/headers';
 
 const intlMiddleware = createIntlMiddleware(routing);
 
@@ -43,6 +44,14 @@ async function lookupRedirect(request: NextRequest, path: string): Promise<Redir
 }
 
 export default async function middleware(request: NextRequest): Promise<NextResponse> {
+  const { pathname } = request.nextUrl;
+
+  // §16.1: the admin and API surfaces get the same security headers as the
+  // public pages, but none of the locale machinery below.
+  if (pathname.startsWith('/admin') || pathname.startsWith('/api')) {
+    return applySecurityHeaders(NextResponse.next());
+  }
+
   // Spec §5.1: "/" performs a 302 language-detect redirect and is never cached.
   if (request.nextUrl.pathname === '/') {
     const url = request.nextUrl.clone();
@@ -50,7 +59,7 @@ export default async function middleware(request: NextRequest): Promise<NextResp
     const response = NextResponse.redirect(url, 302);
     response.headers.set('Cache-Control', 'no-store');
     response.headers.set('Vary', 'Accept-Language');
-    return response;
+    return applySecurityHeaders(response);
   }
 
   const propertyMatch = PROPERTY_PATH.exec(request.nextUrl.pathname);
@@ -59,7 +68,7 @@ export default async function middleware(request: NextRequest): Promise<NextResp
     if (decision.statusCode === '410') {
       const url = request.nextUrl.clone();
       url.pathname = `/${propertyMatch[1]}/gone`;
-      return NextResponse.rewrite(url, { status: 410 });
+      return applySecurityHeaders(NextResponse.rewrite(url, { status: 410 }));
     }
     if ((decision.statusCode === '301' || decision.statusCode === '302') && decision.to) {
       const url = request.nextUrl.clone();
@@ -68,11 +77,12 @@ export default async function middleware(request: NextRequest): Promise<NextResp
     }
   }
 
-  return intlMiddleware(request) as NextResponse;
+  const response = await intlMiddleware(request);
+  return applySecurityHeaders(response as NextResponse);
 }
 
 export const config = {
-  // Everything except Payload admin, API routes, Next internals, dev-only
-  // pages, and static files.
-  matcher: ['/((?!admin|api|_next|dev|.*\\..*).*)'],
+  // Everything except Next internals, dev-only pages, and static files —
+  // /admin and /api ARE matched so §16.1 headers cover the whole surface.
+  matcher: ['/((?!_next|dev|.*\\..*).*)'],
 };

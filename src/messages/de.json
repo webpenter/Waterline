@@ -230,6 +230,9 @@
     "breadcrumbLabel": "",
     "sampleNotice": ""
   },
+  "legal": {
+    "reviewNote": ""
+  },
   "preferences": {
     "language": "",
     "currency": "",

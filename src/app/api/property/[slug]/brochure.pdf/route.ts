@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 
 import { getPropertyForDetail, type Locale } from '@/lib/db';
+import { checkRateLimit, rateLimitResponse } from '@/lib/rate-limit';
 import { renderBrochure } from '@/lib/pdf/render';
 import { findFallbackProperty, sampleFallbackEnabled } from '@/lib/sample/fallback';
 import type { Property } from '@/payload-types';
@@ -16,6 +17,13 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ slug: string }> },
 ): Promise<NextResponse> {
+  // §16.1/§16.3: PDF rendering is the most expensive public GET — rate-limit
+  // it so a scraper can't turn it into a CPU faucet.
+  const limitResult = checkRateLimit(request, 'brochure', { windowMs: 60_000, max: 20 });
+  if (!limitResult.success) {
+    return rateLimitResponse(limitResult);
+  }
+
   const { slug } = await params;
   const requested = new URL(request.url).searchParams.get('locale') ?? 'en';
   const locale = LOCALES.includes(requested) ? requested : 'en';

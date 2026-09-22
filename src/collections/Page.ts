@@ -8,7 +8,8 @@ export const Page: CollectionConfig = {
   admin: { useAsTitle: 'title', defaultColumns: ['title', 'slug', '_status'] },
   versions: { drafts: true },
   access: {
-    read: anyLoggedIn,
+    // Published pages are public content; drafts stay backoffice-only.
+    read: ({ req }) => (anyLoggedIn({ req }) ? true : { _status: { equals: 'published' } }),
     create: adminOrEditor,
     update: adminOrEditor,
     delete: adminOrEditor,

@@ -14,7 +14,14 @@ const nextConfig = {
   poweredByHeader: false,
   compress: true,
   images: {
-    // §12.2 rule 2: AVIF first, then WebP
+    // §16.1 mitigation (see DECISIONS.md): this codebase deliberately serves
+    // photography via upload-time variant ladders (<img srcSet>), never
+    // next/image — disabling the optimizer removes the /_next/image attack
+    // surface (GHSA-2xp9-vwfh-vxw4 RCE, patched only beyond the pinned Next
+    // 15.4 line). Re-enable with the Next 16 bump if next/image returns.
+    unoptimized: true,
+    // §12.2 rule 2: AVIF first, then WebP (takes effect when the optimizer
+    // returns).
     formats: ['image/avif', 'image/webp'],
     remotePatterns: [
       {

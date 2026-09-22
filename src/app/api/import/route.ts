@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import Papa from 'papaparse';
 
 import { getPayloadClient } from '@/lib/db';
+import { checkRateLimit, rateLimitResponse } from '@/lib/rate-limit';
 import { runImport } from '@/lib/import/runner';
 import type { RawRow } from '@/lib/import/validate-row';
 import { relationId } from '@/payload/access/tenant';
@@ -9,6 +10,11 @@ import { relationId } from '@/payload/access/tenant';
 // §8.4 bulk import: upload → dry-run report → confirm → import. Auth is the
 // Payload session/API key; agency users import only into their own agency.
 export async function POST(request: NextRequest): Promise<NextResponse> {
+  const limitResult = checkRateLimit(request, 'import', { windowMs: 60 * 60 * 1000, max: 10 });
+  if (!limitResult.success) {
+    return rateLimitResponse(limitResult);
+  }
+
   const payload = await getPayloadClient().catch(() => null);
   if (!payload) return NextResponse.json({ ok: false }, { status: 503 });
 

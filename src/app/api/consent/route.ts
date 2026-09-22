@@ -4,6 +4,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { z } from 'zod';
 
 import { getPayloadClient } from '@/lib/db';
+import { checkRateLimit, rateLimitResponse } from '@/lib/rate-limit';
 
 const consentSchema = z.object({
   analytics: z.boolean(),
@@ -14,6 +15,11 @@ const consentSchema = z.object({
 // Stores the granular consent decision (Prompt 12). The IP is hashed — the
 // record proves a decision was made without retaining the raw address.
 export async function POST(request: NextRequest): Promise<NextResponse> {
+  const limitResult = checkRateLimit(request, 'consent', { windowMs: 60 * 60 * 1000, max: 20 });
+  if (!limitResult.success) {
+    return rateLimitResponse(limitResult);
+  }
+
   let parsed: z.infer<typeof consentSchema>;
   try {
     parsed = consentSchema.parse(await request.json());
