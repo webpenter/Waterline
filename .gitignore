@@ -38,6 +38,6 @@ pnpm-debug.log*
 # OS & IDE files
 .DS_Store
 *.pem
-/.cursor/
-/.vscode/
+.cursor/
+.vscode/
 claude.md
