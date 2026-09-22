@@ -40,9 +40,10 @@ export function BoatFitStrip({
   const [middle, afterLoa] = (afterCount ?? '').split('{loa}');
 
   return (
-    <section className="grid gap-9 bg-abyss px-7 py-9 text-white md:grid-cols-[1fr_1.2fr] md:items-center">
+    <section className="grid gap-8 bg-abyss px-7 py-8 text-white md:grid-cols-[1fr_1.2fr] md:items-center">
       <div>
-        <h2 className="mb-2 font-display text-2xl">{title}</h2>
+        {/* Preview .boatstrip h2: 26px — --text-xl. */}
+        <h2 className="mb-2 font-display text-xl">{title}</h2>
         <p className="max-w-[38ch] text-sm text-white/70">{sub}</p>
       </div>
       <div>
@@ -67,7 +68,8 @@ export function BoatFitStrip({
           </span>
           <span className="text-white/50">{draftLabel}</span>
         </div>
-        <p aria-live="polite" className="mt-4 font-display text-3xl">
+        {/* Preview .result: 30px — --text-2xl. */}
+        <p aria-live="polite" className="mt-3 font-display text-2xl">
           {before}
           <em className="not-italic text-sand tabular-nums">
             {new Intl.NumberFormat(locale).format(count)}
@@ -78,7 +80,7 @@ export function BoatFitStrip({
         </p>
         <a
           href={`/${locale}/search?boatLoa=${loa}`}
-          className="mt-4 inline-block border border-sand px-4 py-2 text-xs uppercase tracking-[0.14em] text-sand hover:bg-sand hover:text-abyss"
+          className="mt-3 inline-block border border-sand px-4 py-2 text-xs uppercase tracking-[0.14em] text-sand hover:bg-sand hover:text-abyss"
         >
           {searchCta}
         </a>

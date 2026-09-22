@@ -99,10 +99,11 @@ export default async function HomePage({
         </div>
         <SiteHeader onHero />
         <div className="relative z-10 mt-auto px-7">
-          <h1 className="mb-2 max-w-[15ch] font-display text-4xl leading-[1.08] tracking-[-0.02em]">
+          {/* Preview .hero h1: 42px — --text-3xl (44px), not the 60px 4xl. */}
+          <h1 className="mb-2 max-w-[15ch] font-display text-3xl leading-[1.08] tracking-[-0.02em]">
             {t('heroTitle')}
           </h1>
-          <p className="mb-5 max-w-[52ch] text-sm text-white/85">{t('heroSub')}</p>
+          <p className="mb-5 max-w-[52ch] text-sm leading-relaxed text-white/85">{t('heroSub')}</p>
         </div>
         <form
           action={`/${locale}/search`}
