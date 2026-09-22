@@ -48,17 +48,18 @@ export function UnitSwitcher({
   return (
     <label
       className={`inline-flex items-center gap-2 text-xs uppercase tracking-wider ${
-        dark ? 'text-white/70' : 'text-ink-soft'
+        dark ? 'text-white' : 'text-ink-soft'
       }`}
     >
-      <span>{label}</span>
+      {/* Footer (dark) shows only the value, preview-style; the label stays for AT. */}
+      <span className={dark ? 'sr-only' : undefined}>{label}</span>
       <select
         value={units}
         onChange={(event) => onChange(event.target.value)}
-        className={`h-8 rounded border px-2 text-xs font-medium cursor-pointer transition-colors ${
+        className={`cursor-pointer text-xs font-medium transition-colors ${
           dark
-            ? 'border-white/20 bg-abyss text-white hover:border-white/40'
-            : 'border-line bg-white text-ink'
+            ? 'appearance-none border-0 bg-transparent p-0 uppercase tracking-[0.16em] text-white hover:text-white/80'
+            : 'h-8 rounded border border-line bg-white px-2 text-ink'
         }`}
       >
         <option value="metric" className="bg-abyss text-white">

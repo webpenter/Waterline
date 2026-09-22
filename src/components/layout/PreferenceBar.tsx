@@ -16,12 +16,18 @@ export async function PreferenceBar({ dark = false }: { dark?: boolean }) {
   const t = await getTranslations('preferences');
   const locale = await getLocale();
 
+  // Dark (footer) variant reads as the preview's "English · EUR · Metric"
+  // heading — plain uppercase values joined by dots, still fully operable.
+  const dot = dark ? <span aria-hidden="true">·</span> : null;
+
   return (
-    <div className="flex flex-wrap items-center gap-4">
+    <div className={`flex flex-wrap items-center ${dark ? 'gap-2 text-white' : 'gap-4'}`}>
       <Suspense>
         <LocaleSwitcher label={t('language')} currentLocale={locale} dark={dark} />
       </Suspense>
+      {dot}
       <CurrencySwitcher label={t('currency')} dark={dark} />
+      {dot}
       <UnitSwitcher
         label={t('units')}
         metricLabel={t('unitsMetric')}
