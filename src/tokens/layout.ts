@@ -12,4 +12,8 @@ export const layout = {
   galleryH: '300px',
   /** Desktop hero minimum height (.hero in the preview). */
   heroMinH: '390px',
+  /** Home hero: taller than the preview base for presence — fills ~⅔ of the
+   * viewport, clamped so laptops aren't all sky and short screens still show
+   * the signature strip. */
+  homeHeroMinH: 'clamp(460px, 66vh, 640px)',
 } as const;

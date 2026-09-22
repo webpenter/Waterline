@@ -87,7 +87,7 @@ export default async function HomePage({
       {/* 1 · Hero — single still, scrim, horizon, search bar (§10.1, §11.1). */}
       <div
         className="relative flex flex-col text-white"
-        style={{ minHeight: layout.heroMinH }}
+        style={{ minHeight: layout.homeHeroMinH }}
       >
         <div
           aria-hidden="true"
@@ -100,15 +100,15 @@ export default async function HomePage({
         <SiteHeader onHero />
         <div className="relative z-10 mt-auto px-7">
           {/* Preview .hero h1: 42px — --text-3xl (44px), not the 60px 4xl. */}
-          <h1 className="mb-2 max-w-[15ch] font-display text-3xl leading-[1.08] tracking-[-0.02em]">
+          <h1 className="mb-3 max-w-[15ch] font-display text-3xl leading-[1.08] tracking-[-0.02em]">
             {t('heroTitle')}
           </h1>
-          <p className="mb-5 max-w-[52ch] text-sm leading-relaxed text-white/85">{t('heroSub')}</p>
+          <p className="mb-6 max-w-[52ch] text-sm leading-relaxed text-white/85">{t('heroSub')}</p>
         </div>
         <form
           action={`/${locale}/search`}
           method="GET"
-          className="relative z-10 mx-7 mb-7 grid items-end border border-white/40 bg-white/95 text-ink md:grid-cols-[1.4fr_1fr_1fr_auto]"
+          className="relative z-10 mx-7 mb-8 grid items-end border border-white/40 bg-white/95 text-ink shadow-pop md:grid-cols-[1.4fr_1fr_1fr_auto]"
         >
           <label className="flex flex-col gap-1 border-b border-line p-3 md:border-b-0 md:border-r">
             <span className="text-[length:var(--text-xs)] uppercase tracking-[0.16em] text-ink-soft">
