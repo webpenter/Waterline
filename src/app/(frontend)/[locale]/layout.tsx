@@ -1,8 +1,9 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { setRequestLocale } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import React from 'react';
 
+import { CookieConsent } from '@/components/layout/CookieConsent';
 import { brand } from '@/config/brand';
 import { LOCALES, type AppLocale } from '@/i18n/routing';
 import { hreflangAlternates } from '@/lib/seo/hreflang';
@@ -37,6 +38,7 @@ export default async function LocaleLayout({
   const { locale } = await params;
   if (!LOCALES.includes(locale as AppLocale)) notFound();
   setRequestLocale(locale);
+  const t = await getTranslations('consent');
 
   return (
     // suppressHydrationWarning covers ONLY this element's attributes: browser
@@ -52,7 +54,24 @@ export default async function LocaleLayout({
           all translation happens in Server Components; client components
           receive translated strings as props. The next-intl client runtime
           (~20 kB gz) must never enter the bundle. */}
-      <body>{children}</body>
+      <body>
+        {children}
+        {/* §4 decision 7: consent is non-blocking, deferred, never
+            layout-shifting — fixed-position and rendered post-hydration. */}
+        <CookieConsent
+          locale={locale}
+          labels={{
+            title: t('title'),
+            description: t('description'),
+            acceptAll: t('acceptAll'),
+            necessaryOnly: t('necessaryOnly'),
+            customize: t('customize'),
+            save: t('save'),
+            analytics: t('analytics'),
+            marketing: t('marketing'),
+          }}
+        />
+      </body>
     </html>
   );
 }

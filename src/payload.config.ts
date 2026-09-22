@@ -19,6 +19,7 @@ import { Article } from './collections/Article';
 import { Page } from './collections/Page';
 import { Redirect } from './collections/Redirect';
 import { AuditLog } from './collections/AuditLog';
+import { ConsentRecord } from './collections/ConsentRecord';
 import { ImportJob } from './collections/ImportJob';
 
 const filename = fileURLToPath(import.meta.url);
@@ -55,6 +56,7 @@ export default buildConfig({
     Redirect,
     AuditLog,
     ImportJob,
+    ConsentRecord,
   ],
   editor: lexicalEditor({}),
   secret: process.env['PAYLOAD_SECRET'] || 'dev_secret_change_me_in_production_min_32_chars',

@@ -85,6 +85,11 @@ export const Lead: CollectionConfig = {
         { name: 'consentIp', type: 'text' },
       ],
     },
+    {
+      name: 'reminderSentAt',
+      type: 'date',
+      admin: { readOnly: true, description: 'When the §8.9 48 h unanswered reminder went out.' },
+    },
     { name: 'utm', type: 'json' },
     { name: 'navigationPath', type: 'json', admin: { description: 'Reserved (empty in Phase 1).' } },
     { name: 'crmContactId', type: 'text', admin: { description: 'Reserved for the Phase 2 CRM seam.' } },

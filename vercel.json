@@ -1,6 +1,7 @@
 {
   "crons": [
     { "path": "/api/cron/poll-feeds", "schedule": "0 */6 * * *" },
-    { "path": "/api/cron/expiry-sweep", "schedule": "30 4 * * *" }
+    { "path": "/api/cron/expiry-sweep", "schedule": "30 4 * * *" },
+    { "path": "/api/cron/lead-reminders", "schedule": "15 * * * *" }
   ]
 }

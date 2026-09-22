@@ -4,12 +4,16 @@ export interface EmailMessage {
   to: string;
   subject: string;
   text: string;
+  html?: string;
+  /** §8.9: lead mail goes out from our domain with reply-to the enquirer. */
+  replyTo?: string;
 }
 
 /**
  * Transactional email seam. With RESEND_API_KEY set it sends through Resend;
  * without it the message is logged and dropped so cron jobs and imports never
- * fail on mail. React Email templates replace `text` in Prompt 12.
+ * fail on mail. Templates live in ./templates and render to html + the
+ * required plain-text fallback (§11.5).
  */
 export async function sendEmail(message: EmailMessage): Promise<boolean> {
   const apiKey = process.env.RESEND_API_KEY;
@@ -26,9 +30,14 @@ export async function sendEmail(message: EmailMessage): Promise<boolean> {
         to: message.to,
         subject: message.subject,
         text: message.text,
+        html: message.html,
+        reply_to: message.replyTo,
       }),
       signal: AbortSignal.timeout(8000),
     });
+    if (!res.ok) {
+      console.warn(`[email] Resend responded ${res.status} for "${message.subject}"`);
+    }
     return res.ok;
   } catch (err) {
     console.warn('[email] send failed:', err);

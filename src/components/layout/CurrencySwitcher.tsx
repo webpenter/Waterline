@@ -15,7 +15,7 @@ function readCookie(name: string): string | undefined {
 }
 
 /** EUR-default currency preference, stored in a cookie (spec Prompt 6). */
-export function CurrencySwitcher({ label }: { label: string }) {
+export function CurrencySwitcher({ label, dark = false }: { label: string; dark?: boolean }) {
   const router = useRouter();
   const [currency, setCurrency] = useState<Currency>(() => {
     const stored = readCookie(CURRENCY_COOKIE);
@@ -30,15 +30,23 @@ export function CurrencySwitcher({ label }: { label: string }) {
   }
 
   return (
-    <label className="inline-flex items-center gap-2 text-sm text-ink-soft">
+    <label
+      className={`inline-flex items-center gap-2 text-xs uppercase tracking-wider ${
+        dark ? 'text-white/70' : 'text-ink-soft'
+      }`}
+    >
       <span>{label}</span>
       <select
         value={currency}
         onChange={(event) => onChange(event.target.value)}
-        className="h-9 rounded-md border border-line bg-white px-2 text-sm text-ink"
+        className={`h-8 rounded border px-2 text-xs font-medium cursor-pointer transition-colors ${
+          dark
+            ? 'border-white/20 bg-abyss text-white hover:border-white/40'
+            : 'border-line bg-white text-ink'
+        }`}
       >
         {CURRENCIES.map((code) => (
-          <option key={code} value={code}>
+          <option key={code} value={code} className="bg-abyss text-white">
             {code}
           </option>
         ))}

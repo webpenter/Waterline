@@ -19,6 +19,7 @@ const LOCALE_LABELS: Record<AppLocale, string> = {
 interface LocaleSwitcherProps {
   label: string;
   currentLocale: string;
+  dark?: boolean;
 }
 
 /**
@@ -27,7 +28,7 @@ interface LocaleSwitcherProps {
  * ships to the client. Localized landing-page slug mapping plugs in here once
  * landing pages exist (Prompt 10).
  */
-export function LocaleSwitcher({ label, currentLocale }: LocaleSwitcherProps) {
+export function LocaleSwitcher({ label, currentLocale, dark = false }: LocaleSwitcherProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -44,15 +45,23 @@ export function LocaleSwitcher({ label, currentLocale }: LocaleSwitcherProps) {
   }
 
   return (
-    <label className="inline-flex items-center gap-2 text-sm text-ink-soft">
+    <label
+      className={`inline-flex items-center gap-2 text-xs uppercase tracking-wider ${
+        dark ? 'text-white/70' : 'text-ink-soft'
+      }`}
+    >
       <span>{label}</span>
       <select
         value={currentLocale}
         onChange={(event) => onChange(event.target.value)}
-        className="h-9 rounded-md border border-line bg-white px-2 text-sm text-ink"
+        className={`h-8 rounded border px-2 text-xs font-medium cursor-pointer transition-colors ${
+          dark
+            ? 'border-white/20 bg-abyss text-white hover:border-white/40'
+            : 'border-line bg-white text-ink'
+        }`}
       >
         {LOCALES.map((code) => (
-          <option key={code} value={code}>
+          <option key={code} value={code} className="bg-abyss text-white">
             {LOCALE_LABELS[code]}
           </option>
         ))}

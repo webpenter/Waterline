@@ -1,6 +1,8 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
+
+import { leadSchema } from '@/lib/schemas/lead';
 
 interface EnquiryFormLabels {
   name: string;
@@ -32,6 +34,9 @@ export function EnquiryForm({ propertyId, source = 'property', locale, labels }:
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error' | 'consent'>(
     'idle',
   );
+  // Anti-bot timing check: stamped after hydration so SSR markup stays stable.
+  const [startedAt, setStartedAt] = useState<number | undefined>(undefined);
+  useEffect(() => setStartedAt(Date.now()), []);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -43,22 +48,33 @@ export function EnquiryForm({ propertyId, source = 'property', locale, labels }:
       return;
     }
 
+    const candidate = {
+      name: data.get('name'),
+      email: data.get('email'),
+      phone: data.get('phone') || undefined,
+      message: data.get('message') || undefined,
+      propertyId,
+      source,
+      consent: true as const,
+      locale,
+      website: data.get('website') || undefined,
+      startedAt,
+    };
+
+    // Shared-schema validation (client side of /src/lib/schemas/lead.ts);
+    // the API re-validates authoritatively.
+    const parsed = leadSchema.safeParse(candidate);
+    if (!parsed.success) {
+      setStatus('error');
+      return;
+    }
+
     setStatus('sending');
     try {
       const response = await fetch('/api/leads', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: data.get('name'),
-          email: data.get('email'),
-          phone: data.get('phone') || undefined,
-          message: data.get('message') || undefined,
-          propertyId,
-          source,
-          consent: true,
-          locale,
-          website: data.get('website') || undefined,
-        }),
+        body: JSON.stringify(parsed.data),
       });
       if (!response.ok) throw new Error(String(response.status));
       setStatus('success');

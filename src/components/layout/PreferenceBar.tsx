@@ -12,20 +12,21 @@ import { UnitSwitcher } from './UnitSwitcher';
  * (~20 kB gz) never ships to the browser — that's the difference between the
  * home route fitting its 110 kB budget or not.
  */
-export async function PreferenceBar() {
+export async function PreferenceBar({ dark = false }: { dark?: boolean }) {
   const t = await getTranslations('preferences');
   const locale = await getLocale();
 
   return (
-    <div className="flex flex-wrap items-center gap-5">
+    <div className="flex flex-wrap items-center gap-4">
       <Suspense>
-        <LocaleSwitcher label={t('language')} currentLocale={locale} />
+        <LocaleSwitcher label={t('language')} currentLocale={locale} dark={dark} />
       </Suspense>
-      <CurrencySwitcher label={t('currency')} />
+      <CurrencySwitcher label={t('currency')} dark={dark} />
       <UnitSwitcher
         label={t('units')}
         metricLabel={t('unitsMetric')}
         imperialLabel={t('unitsImperial')}
+        dark={dark}
       />
     </div>
   );

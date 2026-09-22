@@ -164,6 +164,25 @@
     "landingPagesTitle": "",
     "metaTitle": ""
   },
+  "consent": {
+    "title": "",
+    "description": "",
+    "acceptAll": "",
+    "necessaryOnly": "",
+    "customize": "",
+    "save": "",
+    "analytics": "",
+    "marketing": ""
+  },
+  "contact": {
+    "title": "",
+    "sub": ""
+  },
+  "listWithUs": {
+    "title": "",
+    "formTitle": "",
+    "formSub": ""
+  },
   "preferences": {
     "language": "",
     "currency": "",

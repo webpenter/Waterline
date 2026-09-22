@@ -69,10 +69,10 @@ export async function SiteFooter() {
           </p>
         </div>
         <div className="flex flex-col gap-4">
-          <div className="rounded-md bg-white/95 p-3 text-ink">
-            <PreferenceBar />
+          <div>
+            <PreferenceBar dark />
           </div>
-          <p>
+          <p className="mt-2">
             <Link href="/legal/privacy" className="hover:text-white">
               {t('legalPrivacy')}
             </Link>

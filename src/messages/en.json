@@ -160,6 +160,25 @@
     "landingPagesTitle": "Browse waterfront searches",
     "metaTitle": "Waterfront property for sale in {destination}"
   },
+  "consent": {
+    "title": "Cookies at WATERLINE",
+    "description": "We use necessary cookies to run the site, and — only with your consent — privacy-friendly analytics. Nothing here tracks you across the web without your say-so.",
+    "acceptAll": "Accept all",
+    "necessaryOnly": "Necessary only",
+    "customize": "Customise",
+    "save": "Save choices",
+    "analytics": "Analytics — anonymous usage statistics",
+    "marketing": "Marketing — campaign attribution"
+  },
+  "contact": {
+    "title": "Contact WATERLINE",
+    "sub": "Questions about a listing, a destination, or listing with us — our desk replies directly."
+  },
+  "listWithUs": {
+    "title": "List with us",
+    "formTitle": "Tell us about your inventory",
+    "formSub": "Company, market and how many of your listings have direct water access — we reply with onboarding details."
+  },
   "preferences": {
     "language": "Language",
     "currency": "Currency",

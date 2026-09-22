@@ -1,29 +1,25 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { z } from 'zod';
+import { render } from '@react-email/components';
 
+import { brand } from '@/config/brand';
 import { getPayloadClient } from '@/lib/db';
+import { sendEmail } from '@/lib/email/send';
+import {
+  LeadConfirmationEmail,
+  LeadToAgencyEmail,
+} from '@/lib/email/templates/lead-emails';
+import { resolveLeadRecipient } from '@/lib/leads/routing';
+import { leadSchema, MIN_FILL_MS, type LeadInput } from '@/lib/schemas/lead';
+import type { Agency, Agent } from '@/payload-types';
 
-// Lead intake (§5.3, §8.9). The public REST surface of the Leads collection
-// stays closed — this route is the only anonymous write path. Full consent
-// logging, email notification and durable rate limiting land with Prompt 12;
-// the in-memory limiter below already blunts naive abuse.
+// §8.9 lead intake: validate (shared Zod schema), rate-limit 5/IP/hour, drop
+// bots silently (honeypot + timing check), store with consent record, route
+// agent → agency inbox → internal desk, email via Resend from our domain with
+// reply-to the enquirer. Sample listings log the lead but never email an
+// agency. The in-memory limiter is per-instance; the durable store arrives
+// with the Prompt 18 hardening pass.
 
-const leadSchema = z.object({
-  name: z.string().min(2).max(200),
-  email: z.string().email().max(320),
-  phone: z.string().max(50).optional(),
-  message: z.string().max(5000).optional(),
-  /** Absent for landing/contact leads — those route to the internal desk (§8.9). */
-  propertyId: z.number().int().positive().optional(),
-  source: z.enum(['contact', 'property', 'landing', 'boat_filter', 'whatsapp', 'list_with_us'])
-    .default('property'),
-  consent: z.literal(true),
-  locale: z.enum(['en', 'it', 'fr', 'de', 'es', 'ru']).optional(),
-  /** Honeypot — humans never see it; any value means a bot. */
-  website: z.string().max(0).optional(),
-});
-
-const WINDOW_MS = 60_000;
+const WINDOW_MS = 60 * 60 * 1000;
 const MAX_PER_WINDOW = 5;
 const hits = new Map<string, number[]>();
 
@@ -35,21 +31,27 @@ function rateLimited(ip: string): boolean {
   return recent.length > MAX_PER_WINDOW;
 }
 
+function isBot(parsed: LeadInput): boolean {
+  if (parsed.website !== undefined && parsed.website !== '') return true;
+  if (parsed.startedAt !== undefined && Date.now() - parsed.startedAt < MIN_FILL_MS) return true;
+  return false;
+}
+
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown';
   if (rateLimited(ip)) {
     return NextResponse.json({ ok: false }, { status: 429 });
   }
 
-  let parsed: z.infer<typeof leadSchema>;
+  let parsed: LeadInput;
   try {
     parsed = leadSchema.parse(await request.json());
   } catch {
     return NextResponse.json({ ok: false }, { status: 400 });
   }
 
-  // Honeypot triggered: pretend success, store nothing.
-  if (parsed.website !== undefined && parsed.website !== '') {
+  // Bots get a success response and nothing stored.
+  if (isBot(parsed)) {
     return NextResponse.json({ ok: true }, { status: 201 });
   }
 
@@ -59,22 +61,73 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     let propertyId: number | undefined;
     let agencyId: number | undefined;
     let agentId: number | undefined;
+    let listingTitle: string | undefined;
+    let listingUrl: string | undefined;
+    let isSample = false;
+    let agent: Agent | null = null;
+    let agency: Agency | null = null;
+
     if (parsed.propertyId != null) {
       const property = await payload.findByID({
         collection: 'properties',
         id: parsed.propertyId,
-        depth: 0,
+        depth: 1,
         overrideAccess: true,
       });
       propertyId = property.id;
+      listingTitle = property.title;
+      isSample = Boolean(property.isSample);
+      if (property.slug) {
+        const base = (process.env.NEXT_PUBLIC_SITE_URL ?? brand.siteUrl).replace(/\/$/, '');
+        listingUrl = `${base}/${parsed.locale ?? 'en'}/property/${property.slug}`;
+      }
+      agency = typeof property.agency === 'object' ? property.agency : null;
       agencyId = typeof property.agency === 'object' ? property.agency.id : property.agency;
-      agentId =
-        property.agent == null
-          ? undefined
-          : typeof property.agent === 'object'
-            ? property.agent.id
-            : property.agent;
+      agent = typeof property.agent === 'object' ? property.agent : null;
+      agentId = agent?.id ?? (typeof property.agent === 'number' ? property.agent : undefined);
     }
+
+    // §8.9 routing chain: property.agent → agency inbox → internal desk.
+    const recipient = resolveLeadRecipient({
+      agentEmail: agent?.email,
+      agentReceivesLeads: agent?.receivesLeads,
+      agencyEmail: agency?.email,
+      internalDesk: process.env.LEAD_NOTIFY_TO,
+    });
+
+    let agencyEmailed = false;
+    if (recipient && !isSample) {
+      const component = LeadToAgencyEmail({
+        enquirerName: parsed.name,
+        enquirerEmail: parsed.email,
+        enquirerPhone: parsed.phone,
+        message: parsed.message,
+        listingTitle,
+        listingUrl,
+      });
+      agencyEmailed = await sendEmail({
+        to: recipient.to,
+        subject: listingTitle
+          ? `New enquiry — ${listingTitle}`
+          : `New ${parsed.source} enquiry`,
+        html: await render(component),
+        text: await render(component, { plainText: true }),
+        replyTo: parsed.email,
+      });
+    }
+
+    const confirmation = LeadConfirmationEmail({
+      enquirerName: parsed.name,
+      enquirerEmail: parsed.email,
+      listingTitle,
+      listingUrl,
+    });
+    await sendEmail({
+      to: parsed.email,
+      subject: 'Your enquiry has been sent',
+      html: await render(confirmation),
+      text: await render(confirmation, { plainText: true }),
+    });
 
     await payload.create({
       collection: 'leads',
@@ -89,7 +142,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         agent: agentId,
         locale: parsed.locale,
         source: parsed.source,
-        status: 'new',
+        // Lifecycle (§6.8): 'sent' once the agency notification went out.
+        status: agencyEmailed ? 'sent' : 'new',
         consent: {
           consentMarketing: true,
           consentedAt: new Date().toISOString(),
@@ -100,7 +154,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     return NextResponse.json({ ok: true }, { status: 201 });
   } catch (err) {
-    console.error('[leads] intake failed:', err);
+    console.warn('[leads] intake failed:', err);
     return NextResponse.json({ ok: false }, { status: 503 });
   }
 }

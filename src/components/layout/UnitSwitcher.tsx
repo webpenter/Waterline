@@ -22,10 +22,16 @@ interface UnitSwitcherProps {
   label: string;
   metricLabel: string;
   imperialLabel: string;
+  dark?: boolean;
 }
 
 /** Metric/imperial preference, stored in a cookie (spec Prompt 6). */
-export function UnitSwitcher({ label, metricLabel, imperialLabel }: UnitSwitcherProps) {
+export function UnitSwitcher({
+  label,
+  metricLabel,
+  imperialLabel,
+  dark = false,
+}: UnitSwitcherProps) {
   const router = useRouter();
   const [units, setUnits] = useState<UnitSystem>(() => {
     const stored = readCookie(UNITS_COOKIE);
@@ -40,15 +46,27 @@ export function UnitSwitcher({ label, metricLabel, imperialLabel }: UnitSwitcher
   }
 
   return (
-    <label className="inline-flex items-center gap-2 text-sm text-ink-soft">
+    <label
+      className={`inline-flex items-center gap-2 text-xs uppercase tracking-wider ${
+        dark ? 'text-white/70' : 'text-ink-soft'
+      }`}
+    >
       <span>{label}</span>
       <select
         value={units}
         onChange={(event) => onChange(event.target.value)}
-        className="h-9 rounded-md border border-line bg-white px-2 text-sm text-ink"
+        className={`h-8 rounded border px-2 text-xs font-medium cursor-pointer transition-colors ${
+          dark
+            ? 'border-white/20 bg-abyss text-white hover:border-white/40'
+            : 'border-line bg-white text-ink'
+        }`}
       >
-        <option value="metric">{metricLabel}</option>
-        <option value="imperial">{imperialLabel}</option>
+        <option value="metric" className="bg-abyss text-white">
+          {metricLabel}
+        </option>
+        <option value="imperial" className="bg-abyss text-white">
+          {imperialLabel}
+        </option>
       </select>
     </label>
   );
