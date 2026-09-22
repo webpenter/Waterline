@@ -45,8 +45,10 @@ export function toSearchDocument(property: unknown): Record<string, unknown> {
     plotAreaSqm: (doc.plotAreaSqm as number | null) ?? undefined,
     country: (location.country as string | null) ?? undefined,
     destinationId: relId(location.destination),
-    // Typesense geopoint is [lat, lng].
+    // Typesense geopoint is [lat, lng]. Already jittered/nulled by the
+    // sanitizer above; `approximate` lets the map draw a circle, never a pin.
     location: Array.isArray(coords) ? [coords[1], coords[0]] : undefined,
+    approximate: location.coordinatePrecision === 'approximate_500m',
     publishedAtTs: doc.publishedAt ? Date.parse(String(doc.publishedAt)) : undefined,
   };
 }

@@ -14,10 +14,35 @@ import { sanitizePropertyForPublic } from './sanitize';
 export type Locale = 'en' | 'it' | 'fr' | 'de' | 'es' | 'ru';
 
 let cached: Payload | null = null;
+let inFlight: Promise<Payload> | null = null;
+let lastFailureAt = 0;
+const FAILURE_TTL_MS = 15_000;
 
+/**
+ * Cached Payload client. Concurrent callers share one connection attempt, and
+ * after a failure every caller fails fast for FAILURE_TTL_MS instead of
+ * re-dialing the database — one page render never stacks up N connect
+ * timeouts when Postgres is down.
+ */
 export async function getPayloadClient(): Promise<Payload> {
-  if (!cached) cached = await getPayload({ config: await config });
-  return cached;
+  if (cached) return cached;
+  if (Date.now() - lastFailureAt < FAILURE_TTL_MS) {
+    throw new Error('Database unavailable (cooling down after a failed connection).');
+  }
+  if (!inFlight) {
+    inFlight = (async () => {
+      try {
+        cached = await getPayload({ config: await config });
+        return cached;
+      } catch (err) {
+        lastFailureAt = Date.now();
+        throw err;
+      } finally {
+        inFlight = null;
+      }
+    })();
+  }
+  return inFlight;
 }
 
 export async function getPropertyBySlug(
@@ -34,6 +59,52 @@ export async function getPropertyBySlug(
   });
   const doc = res.docs[0];
   return doc ? sanitizePropertyForPublic(doc) : null;
+}
+
+/**
+ * Detail-page fetch: unlike getPropertyBySlug, also returns sold/expired and
+ * unlisted listings so the page can render its designed states (§10.3).
+ * Private listings and unapproved/unpublished docs stay invisible.
+ */
+export async function getPropertyForDetail(
+  slug: string,
+  locale: Locale = 'en',
+): Promise<Property | null> {
+  const payload = await getPayloadClient();
+  const res = await payload.find({
+    collection: 'properties',
+    where: {
+      and: [
+        { slug: { equals: slug } },
+        { _status: { equals: 'published' } },
+        { moderation: { equals: 'approved' } },
+        { visibility: { in: ['public', 'unlisted'] } },
+        { status: { in: ['in_market', 'under_offer', 'sold', 'expired'] } },
+      ],
+    },
+    locale,
+    depth: 2,
+    limit: 1,
+  });
+  const doc = res.docs[0];
+  return doc ? sanitizePropertyForPublic(doc) : null;
+}
+
+/** All public slugs, for generateStaticParams. Safe: empty when the DB is unreachable. */
+export async function getPublicSlugs(limit = 500): Promise<string[]> {
+  try {
+    const payload = await getPayloadClient();
+    const res = await payload.find({
+      collection: 'properties',
+      where: publicPredicate(),
+      limit,
+      depth: 0,
+      select: { slug: true },
+    });
+    return res.docs.map((doc) => doc.slug).filter((slug): slug is string => Boolean(slug));
+  } catch {
+    return [];
+  }
 }
 
 export async function getFeatured(limit = 6, locale: Locale = 'en'): Promise<Property[]> {
@@ -100,7 +171,7 @@ export async function searchProperties(
     try {
       return await engine(filters);
     } catch (err) {
-      console.error('[search] Typesense failed mid-query; using Postgres fallback:', err);
+      console.warn('[search] Typesense failed mid-query; using Postgres fallback:', err);
     }
   }
   return fallback(filters);

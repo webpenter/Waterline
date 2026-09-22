@@ -7,9 +7,14 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
   reporter: 'html',
+  // Dev-mode compiles routes on first hit; the Payload-linked pages take well
+  // over the 30s default on a cold .next. Generous timeouts keep the suite
+  // honest about assertions instead of failing on compile latency.
+  timeout: 90_000,
   use: {
     baseURL: 'http://localhost:3000',
     trace: 'on-first-retry',
+    navigationTimeout: 60_000,
   },
   projects: [
     {

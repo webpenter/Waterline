@@ -31,7 +31,7 @@ test('every page emits hreflang for all locales plus x-default', async ({ page }
 
 test('locale switcher preserves path and query', async ({ page }) => {
   await page.goto('/en?boatLoa=24');
-  await page.getByRole('combobox').first().selectOption('it');
+  await page.getByLabel('Language').selectOption('it');
   await page.waitForURL('**/it?boatLoa=24');
   expect(new URL(page.url()).pathname).toBe('/it');
   expect(new URL(page.url()).search).toBe('?boatLoa=24');

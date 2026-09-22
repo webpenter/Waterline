@@ -38,6 +38,22 @@ export function formatPriceEur(
   }).format(amount);
 }
 
+/** Compact map-marker price ("€14.5M", "$920K") in the viewer's currency. */
+export function formatPriceCompact(
+  priceEur: number,
+  currency: Currency = DEFAULT_CURRENCY,
+  locale = 'en',
+  ratesPerEur: FxRates = FALLBACK_RATES_PER_EUR,
+): string {
+  const amount = Math.round(priceEur * (ratesPerEur[currency] ?? 1));
+  return new Intl.NumberFormat(locale, {
+    style: 'currency',
+    currency,
+    notation: 'compact',
+    maximumFractionDigits: 1,
+  }).format(amount);
+}
+
 const SQFT_PER_SQM = 10.7639;
 const FEET_PER_METER = 3.28084;
 

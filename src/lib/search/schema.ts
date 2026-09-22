@@ -34,6 +34,7 @@ export const PROPERTY_SEARCH_SCHEMA = {
     { name: 'country', type: 'string' as const, facet: true, optional: true },
     { name: 'destinationId', type: 'int64' as const, facet: true, optional: true },
     { name: 'location', type: 'geopoint' as const, optional: true },
+    { name: 'approximate', type: 'bool' as const, optional: true },
     { name: 'publishedAtTs', type: 'int64' as const, optional: true },
   ],
   default_sorting_field: '',

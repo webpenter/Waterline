@@ -8,6 +8,12 @@ test.describe('Accessibility', () => {
     expect(results.violations).toEqual([]);
   });
 
+  test('search page has no automatically detectable a11y violations', async ({ page }) => {
+    await page.goto('/en/search?water=sea&boatLoa=24');
+    const results = await new AxeBuilder({ page }).analyze();
+    expect(results.violations).toEqual([]);
+  });
+
   test('styleguide has no automatically detectable a11y violations', async ({ page }) => {
     await page.goto('/dev/styleguide');
     const results = await new AxeBuilder({ page }).analyze();

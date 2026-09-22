@@ -95,7 +95,11 @@ export const enforceWaterRule: CollectionBeforeValidateHook = ({ data, originalD
 export const computeDerivedFields: CollectionBeforeChangeHook = async ({
   data,
   originalDoc,
+  req,
 }) => {
+  // View-counter updates touch nothing derived — skip the FX/slug/fingerprint work.
+  if (req.context?.viewBeacon) return data;
+
   const doc = merged(data, originalDoc as PropertyData);
   const out: PropertyData = { ...data };
 
@@ -160,6 +164,9 @@ export const syncAfterChange: CollectionAfterChangeHook = async ({
   operation,
   req,
 }) => {
+  // View-counter increments are not content changes: no audit, no reindex.
+  if (req.context?.viewBeacon) return doc;
+
   const d = doc as PropertyData;
 
   const justPublished =

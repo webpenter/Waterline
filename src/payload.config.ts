@@ -66,6 +66,9 @@ export default buildConfig({
       connectionString:
         process.env['DATABASE_URL'] ||
         'postgresql://postgres:waterline_dev_password@localhost:5432/waterline',
+      // Bound each connection attempt so an unreachable database fails fast
+      // instead of stalling page renders behind multi-second dials.
+      connectionTimeoutMillis: 3000,
     },
   }),
   sharp,
