@@ -16,7 +16,9 @@ interface EnquiryFormLabels {
 }
 
 interface EnquiryFormProps {
-  propertyId: number;
+  /** Omitted for landing-page/contact leads — routed to the internal desk. */
+  propertyId?: number;
+  source?: 'property' | 'landing' | 'contact' | 'list_with_us';
   locale: string;
   labels: EnquiryFormLabels;
 }
@@ -26,7 +28,7 @@ interface EnquiryFormProps {
  * honeypot; consent is mandatory before anything is sent. All labels arrive
  * translated as props — no intl runtime on the client.
  */
-export function EnquiryForm({ propertyId, locale, labels }: EnquiryFormProps) {
+export function EnquiryForm({ propertyId, source = 'property', locale, labels }: EnquiryFormProps) {
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error' | 'consent'>(
     'idle',
   );
@@ -52,6 +54,7 @@ export function EnquiryForm({ propertyId, locale, labels }: EnquiryFormProps) {
           phone: data.get('phone') || undefined,
           message: data.get('message') || undefined,
           propertyId,
+          source,
           consent: true,
           locale,
           website: data.get('website') || undefined,

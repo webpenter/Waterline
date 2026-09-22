@@ -143,6 +143,23 @@
     "legalCookies": "Cookies",
     "legalTerms": "Terms"
   },
+  "landing": {
+    "statsAvailable": "Properties available",
+    "statsMedianPrice": "Median price",
+    "statsMedianFrontage": "Median frontage",
+    "statsTopType": "Most common type",
+    "viewAllCta": "View all {count} properties",
+    "siblingsTitle": "Related waterfront searches",
+    "faqTitle": "Frequently asked questions",
+    "enquiryTitle": "Enquire about this area",
+    "enquirySub": "Tell us what you are looking for — our desk routes it to the right agency."
+  },
+  "destinations": {
+    "hubTitle": "Waterfront destinations",
+    "hubSub": "Every destination lists only properties with verified direct water access.",
+    "landingPagesTitle": "Browse waterfront searches",
+    "metaTitle": "Waterfront property for sale in {destination}"
+  },
   "preferences": {
     "language": "Language",
     "currency": "Currency",

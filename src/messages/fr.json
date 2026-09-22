@@ -147,6 +147,23 @@
     "legalCookies": "",
     "legalTerms": ""
   },
+  "landing": {
+    "statsAvailable": "",
+    "statsMedianPrice": "",
+    "statsMedianFrontage": "",
+    "statsTopType": "",
+    "viewAllCta": "",
+    "siblingsTitle": "",
+    "faqTitle": "",
+    "enquiryTitle": "",
+    "enquirySub": ""
+  },
+  "destinations": {
+    "hubTitle": "",
+    "hubSub": "",
+    "landingPagesTitle": "",
+    "metaTitle": ""
+  },
   "preferences": {
     "language": "",
     "currency": "",

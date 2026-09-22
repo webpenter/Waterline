@@ -13,7 +13,10 @@ const leadSchema = z.object({
   email: z.string().email().max(320),
   phone: z.string().max(50).optional(),
   message: z.string().max(5000).optional(),
-  propertyId: z.number().int().positive(),
+  /** Absent for landing/contact leads — those route to the internal desk (§8.9). */
+  propertyId: z.number().int().positive().optional(),
+  source: z.enum(['contact', 'property', 'landing', 'boat_filter', 'whatsapp', 'list_with_us'])
+    .default('property'),
   consent: z.literal(true),
   locale: z.enum(['en', 'it', 'fr', 'de', 'es', 'ru']).optional(),
   /** Honeypot — humans never see it; any value means a bot. */
@@ -52,21 +55,26 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
   try {
     const payload = await getPayloadClient();
-    const property = await payload.findByID({
-      collection: 'properties',
-      id: parsed.propertyId,
-      depth: 0,
-      overrideAccess: true,
-    });
 
-    const agencyId =
-      typeof property.agency === 'object' ? property.agency.id : property.agency;
-    const agentId =
-      property.agent == null
-        ? undefined
-        : typeof property.agent === 'object'
-          ? property.agent.id
-          : property.agent;
+    let propertyId: number | undefined;
+    let agencyId: number | undefined;
+    let agentId: number | undefined;
+    if (parsed.propertyId != null) {
+      const property = await payload.findByID({
+        collection: 'properties',
+        id: parsed.propertyId,
+        depth: 0,
+        overrideAccess: true,
+      });
+      propertyId = property.id;
+      agencyId = typeof property.agency === 'object' ? property.agency.id : property.agency;
+      agentId =
+        property.agent == null
+          ? undefined
+          : typeof property.agent === 'object'
+            ? property.agent.id
+            : property.agent;
+    }
 
     await payload.create({
       collection: 'leads',
@@ -76,11 +84,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         email: parsed.email,
         phone: parsed.phone,
         message: parsed.message,
-        property: property.id,
+        property: propertyId,
         agency: agencyId,
         agent: agentId,
         locale: parsed.locale,
-        source: 'property',
+        source: parsed.source,
         status: 'new',
         consent: {
           consentMarketing: true,

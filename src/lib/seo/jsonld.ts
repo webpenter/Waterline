@@ -84,6 +84,21 @@ export function realEstateListingJsonLd(property: Property, locale: string): Jso
   return jsonLd;
 }
 
+export function faqPageJsonLd(
+  faq: Array<{ question: string; answer: string }>,
+): Json | null {
+  if (faq.length === 0) return null;
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faq.map((entry) => ({
+      '@type': 'Question',
+      name: entry.question,
+      acceptedAnswer: { '@type': 'Answer', text: entry.answer },
+    })),
+  };
+}
+
 export function breadcrumbJsonLd(
   locale: string,
   crumbs: Array<{ name: string; path: string }>,

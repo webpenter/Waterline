@@ -43,6 +43,19 @@ export const LandingPage: CollectionConfig = {
       },
     },
     { name: 'body', type: 'richText', localized: true },
+    {
+      name: 'faq',
+      type: 'array',
+      localized: true,
+      admin: {
+        description:
+          'Question-form entries rendered as an accordion with FAQPage JSON-LD (§10.4/§14.3). Answer real buyer questions — mooring rules, tenure, access.',
+      },
+      fields: [
+        { name: 'question', type: 'text', required: true },
+        { name: 'answer', type: 'textarea', required: true },
+      ],
+    },
     { name: 'metaTitle', type: 'text', localized: true },
     { name: 'metaDescription', type: 'textarea', localized: true },
   ],

@@ -261,6 +261,57 @@ export async function getAggregatesForScope(scope: {
   };
 }
 
+import type { Destination, LandingPage } from '@/payload-types';
+import { publishedLandingPagesWhere } from '@/lib/seo/combos';
+
+export async function getLandingPageBySlug(
+  slug: string,
+  locale: Locale = 'en',
+): Promise<LandingPage | null> {
+  const payload = await getPayloadClient();
+  const res = await payload.find({
+    collection: 'landing-pages',
+    where: { and: [publishedLandingPagesWhere(), { slug: { equals: slug } }] },
+    locale,
+    depth: 1,
+    limit: 1,
+    overrideAccess: true,
+  });
+  return res.docs[0] ?? null;
+}
+
+export async function getPublishedLandingPages(
+  locale: Locale = 'en',
+  limit = 100,
+): Promise<LandingPage[]> {
+  const payload = await getPayloadClient();
+  const res = await payload.find({
+    collection: 'landing-pages',
+    where: publishedLandingPagesWhere(),
+    locale,
+    depth: 1,
+    limit,
+    overrideAccess: true,
+  });
+  return res.docs;
+}
+
+export async function getDestinationBySlug(
+  slug: string,
+  locale: Locale = 'en',
+): Promise<Destination | null> {
+  const payload = await getPayloadClient();
+  const res = await payload.find({
+    collection: 'destinations',
+    where: { slug: { equals: slug } },
+    locale,
+    depth: 1,
+    limit: 1,
+    overrideAccess: true,
+  });
+  return res.docs[0] ?? null;
+}
+
 export interface DestinationCount {
   id: number;
   name: string;
