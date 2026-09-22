@@ -99,9 +99,15 @@ can perform).
 
 ## Full e2e suite (this run)
 
-Recorded in the commit message / CI logs — the suite that ran with this
-report covers phases 4–14, i18n, a11y (8 routes), console-errors, health and
-visual harness gating, on desktop + mobile Chrome.
+**180 passed · 0 failed** · 2 skipped (admin-login axe + CI-only visual
+gating — both DB/CI-bound) · 4 flaky-passed-on-retry (dev-mode compile
+timing). Coverage: phases 4–14, i18n, a11y (8 routes), console-errors,
+health, on desktop + mobile Chrome, against a warm dev server.
+
+One stale assertion fixed during the gate: `tests/phase5.spec.ts` still
+expected the seed combo `villas-sea-liguria` to 404 — since Prompt 16 that
+combo intentionally renders as a gated, noindexed demo landing in demo mode.
+The §5.4 gate itself is intact (re-proven with a non-seed combo, 404).
 
 ## Verdict
 
