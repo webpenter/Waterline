@@ -51,7 +51,11 @@ export function ResultsMap({ markers, panelLabel, unavailableNote }: ResultsMapP
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const key = process.env.NEXT_PUBLIC_MAPTILER_KEY;
+  // Placeholder keys (dev_*) mean "no key": render the designed fallback
+  // instead of dialing MapTiler into a guaranteed 403 (same rule as the
+  // brochure's staticMapUrl).
+  const rawKey = process.env.NEXT_PUBLIC_MAPTILER_KEY;
+  const key = rawKey && !rawKey.startsWith('dev_') ? rawKey : undefined;
 
   useEffect(() => {
     if (!key || !container.current || markers.length === 0) return;
