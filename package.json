@@ -24,7 +24,10 @@
     "search:reindex": "tsx src/scripts/reindex-search.ts",
     "audit:seo": "tsx src/scripts/audit-seo.ts",
     "audit:a11y": "playwright test tests/a11y.spec.ts",
-    "audit:all": "pnpm typecheck && pnpm lint && pnpm test && pnpm audit:seo && pnpm audit:a11y"
+    "audit:all": "pnpm typecheck && pnpm lint && pnpm test && pnpm audit:seo && pnpm audit:a11y",
+    "payload:migrate": "payload migrate",
+    "payload:migrate:create": "payload migrate:create",
+    "build:deploy": "payload migrate && pnpm build"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

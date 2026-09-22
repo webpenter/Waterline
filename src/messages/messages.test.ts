@@ -44,12 +44,23 @@ describe('message files (Prompt 6)', () => {
     }
   });
 
-  it('placeholder files are marked for the translation pass', () => {
+  it('locale files carry their translation status and no empty values', () => {
     for (const locale of LOCALES) {
       const parsed = JSON.parse(
         readFileSync(join(MESSAGES_DIR, `${locale}.json`), 'utf8'),
       ) as { _meta?: { status?: string } };
-      expect(parsed._meta?.status).toBe('awaiting-translation');
+      // The UI translation pass is done; a regression back to
+      // 'awaiting-translation' (or untagged files) should fail loudly.
+      expect(parsed._meta?.status).toBe('translated-ui-pass');
+      const flat = (node: unknown): string[] =>
+        typeof node === 'string'
+          ? [node]
+          : node && typeof node === 'object'
+            ? Object.entries(node)
+                .filter(([key]) => key !== '_meta')
+                .flatMap(([, value]) => flat(value))
+            : [];
+      expect(flat(parsed).filter((value) => value === '')).toEqual([]);
     }
   });
 });

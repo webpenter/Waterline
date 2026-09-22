@@ -72,6 +72,10 @@ export default buildConfig({
       // instead of stalling page renders behind multi-second dials.
       connectionTimeoutMillis: 3000,
     },
+    // Production never auto-pushes schema (Payload only pushes in dev):
+    // committed migrations in src/migrations are applied by
+    // `pnpm payload:migrate` during the Vercel build (runbooks/deploy.md §0.6).
+    migrationDir: path.resolve(dirname, 'migrations'),
   }),
   sharp,
 });

@@ -6,6 +6,75 @@
 
 ---
 
+## 0. One-Time Environment Provisioning (Prompt 20)
+
+Three environments: **development** (local or cloud dev), **staging**
+(password-protected Vercel preview + its own Neon branch + its own Typesense
+collection prefix, `noindex` site-wide), **production**. Staging and
+production never share a database or search index.
+
+### 0.1 Neon (Postgres + PostGIS)
+1. Create a Neon project → note the pooled connection string.
+2. Create a `staging` branch off `main` (two connection strings total).
+3. On BOTH branches run: `CREATE EXTENSION IF NOT EXISTS postgis; CREATE EXTENSION IF NOT EXISTS pg_trgm;`
+4. Env: `DATABASE_URL` (per environment).
+
+### 0.2 Typesense Cloud
+1. Create a cluster → note host, port 443, protocol https.
+2. Create an admin key and a search-only key.
+3. Env: `TYPESENSE_HOST`, `TYPESENSE_PORT=443`, `TYPESENSE_PROTOCOL=https`,
+   `TYPESENSE_API_KEY` (admin), `TYPESENSE_SEARCH_ONLY_KEY`.
+4. After first deploy: `pnpm search:reindex` once per environment.
+
+### 0.3 Cloudflare R2 (media)
+1. Create a bucket per environment (`waterline-media`, `waterline-media-staging`).
+2. Create an R2 API token (Object Read & Write, scoped to the buckets).
+3. Env: `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET`;
+   `NEXT_PUBLIC_CF_IMAGES_URL` if serving through Cloudflare Images.
+4. §16.3: keep object keys unguessable (the upload pipeline hashes filenames).
+
+### 0.4 Resend (transactional email)
+1. Add and verify the sending domain (SPF + DKIM records).
+2. Env: `RESEND_API_KEY`, `AGENCY_NOTIFY_FROM` (verified address),
+   `LEAD_NOTIFY_TO` (internal desk inbox).
+
+### 0.5 Remaining keys
+- `PAYLOAD_SECRET` — 32+ random chars, per environment: `openssl rand -hex 32`
+- `REVALIDATE_SECRET`, `CRON_SECRET`, `FEED_INGEST_SECRET` — same generator,
+  three distinct values per environment.
+- `NEXT_PUBLIC_MAPTILER_KEY` — from MapTiler Cloud (a real key; `dev_*`
+  prefixes render the map fallback by design).
+- `NEXT_PUBLIC_SITE_URL` — `https://staging.waterline.example` / production URL.
+- `NEXT_PUBLIC_PLAUSIBLE_DOMAIN` — production only (analytics stays off staging).
+- `SENTRY_DSN` — from Sentry project settings.
+- `SAMPLE_DATA_ENABLED` — `true` on staging if demo inventory is wanted,
+  **`false` in production (launch-blocking, LAUNCH-CHECKLIST.md)**.
+- `FX_API_KEY`, `UNSPLASH_ACCESS_KEY` — optional (currency refresh, seed images).
+- `NEXT_PUBLIC_DEFAULT_LOCALE=en`.
+
+### 0.6 Vercel project
+1. Import the GitHub repo (`Fayyaz-WebPenter/WATERLINE`); framework preset Next.js.
+2. **Build Command: `pnpm build:deploy`** — runs `payload migrate` before the
+   build so schema changes apply with the release. (First ever deploy: generate
+   the initial migration per `src/migrations/README.md` and commit it first.)
+3. Enter the env vars above, scoped: Production values on Production; staging
+   values on Preview (or a dedicated staging project).
+4. Staging protection: Project → Deployment Protection → Password.
+5. Crons are read from `vercel.json` (poll-feeds, expiry-sweep, lead-reminders,
+   retention) — verify they appear under Settings → Cron Jobs; they authorize
+   with `CRON_SECRET` automatically via Vercel's cron header + our route guard.
+6. After first deploy: create the first admin user at `/admin`, then enrol
+   TOTP 2FA for every admin/agency_admin (LAUNCH-CHECKLIST.md).
+
+### 0.7 First-deploy smoke
+```bash
+curl -s https://<host>/api/health | jq .        # { ok, db: true, search: true }
+curl -sI https://<host>/en | grep -i strict-transport   # §16.1 headers live
+```
+Then run the LAUNCH-CHECKLIST.md top section against staging.
+
+---
+
 ## 1. Routine Deployment Flow
 
 1. **Feature Branch & PR**:
