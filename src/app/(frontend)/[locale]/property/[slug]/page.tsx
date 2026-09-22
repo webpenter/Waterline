@@ -229,6 +229,26 @@ export default async function PropertyPage({ params }: DetailPageProps) {
           {property.subtitle ? (
             <p className="text-xs text-ink-soft">{property.subtitle}</p>
           ) : null}
+          {/* Preview .ltitle .loc: "6 bedrooms · 5 bathrooms · 740 m² · plot 2,100 m² · built 1964, renovated 2021" */}
+          <p className="mt-1 text-xs text-ink-soft">
+            {[
+              property.bedrooms != null ? t('locBedrooms', { n: property.bedrooms }) : null,
+              property.bathrooms != null ? t('locBathrooms', { n: property.bathrooms }) : null,
+              property.builtAreaSqm != null
+                ? formatArea(property.builtAreaSqm, units, viewerLocale)
+                : null,
+              property.plotAreaSqm != null
+                ? t('locPlot', { area: formatArea(property.plotAreaSqm, units, viewerLocale) })
+                : null,
+              property.yearBuilt != null
+                ? property.renovatedYear != null
+                  ? `${t('locBuilt', { year: property.yearBuilt })}, ${t('locRenovated', { year: property.renovatedYear })}`
+                  : t('locBuilt', { year: property.yearBuilt })
+                : null,
+            ]
+              .filter(Boolean)
+              .join(' · ')}
+          </p>
         </div>
         <p className="text-right font-display text-2xl tabular-nums text-ink">{price}</p>
       </header>
@@ -291,7 +311,7 @@ export default async function PropertyPage({ params }: DetailPageProps) {
               <div className="mb-4 flex items-center gap-3">
                 <span
                   aria-hidden="true"
-                  className="flex h-10 w-10 items-center justify-center rounded-pill bg-abyss font-display text-sm text-white"
+                  className="flex size-7 items-center justify-center rounded-pill bg-abyss font-display text-sm text-white"
                 >
                   {(agent?.name ?? agency.name).slice(0, 1)}
                 </span>

@@ -145,7 +145,12 @@
     "formConsentRequired": "Veuillez accepter la déclaration de consentement pour que nous transmettions votre demande à l'agence.",
     "formErrorSummary": "Veuillez corriger les points suivants avant l'envoi :",
     "formErrorName": "Saisissez votre nom (au moins 2 caractères).",
-    "formErrorEmail": "Saisissez une adresse e-mail valide."
+    "formErrorEmail": "Saisissez une adresse e-mail valide.",
+    "locBedrooms": "{n} chambres",
+    "locBathrooms": "{n} salles de bains",
+    "locPlot": "terrain {area}",
+    "locBuilt": "construit en {year}",
+    "locRenovated": "rénové en {year}"
   },
   "footer": {
     "destinationsTitle": "Destinations",
@@ -165,7 +170,8 @@
     "siblingsTitle": "Recherches associées au bord de l'eau",
     "faqTitle": "Questions fréquentes",
     "enquiryTitle": "Se renseigner sur ce secteur",
-    "enquirySub": "Dites-nous ce que vous cherchez — notre desk transmet à la bonne agence."
+    "enquirySub": "Dites-nous ce que vous cherchez — notre desk transmet à la bonne agence.",
+    "kicker": "Bord de l’eau"
   },
   "destinations": {
     "hubTitle": "Destinations au bord de l'eau",

@@ -44,6 +44,8 @@ export function toSearchDocument(property: unknown): Record<string, unknown> {
     builtAreaSqm: (doc.builtAreaSqm as number | null) ?? undefined,
     plotAreaSqm: (doc.plotAreaSqm as number | null) ?? undefined,
     country: (location.country as string | null) ?? undefined,
+    locality: (location.locality as string | null) ?? undefined,
+    region: (location.region as string | null) ?? undefined,
     destinationId: relId(location.destination),
     // Typesense geopoint is [lat, lng]. Already jittered/nulled by the
     // sanitizer above; `approximate` lets the map draw a circle, never a pin.

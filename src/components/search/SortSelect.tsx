@@ -31,7 +31,7 @@ export function SortSelect({ label, options, current }: SortSelectProps) {
       <select
         value={current}
         onChange={(event) => onChange(event.target.value)}
-        className="h-8 rounded-sm border border-line bg-white px-2 text-xs text-ink"
+        className="py-1.5 rounded-sm border border-line bg-white px-2 text-xs text-ink"
       >
         {options.map((option) => (
           <option key={option.value} value={option.value}>

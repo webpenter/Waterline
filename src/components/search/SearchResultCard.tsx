@@ -61,11 +61,19 @@ export async function SearchResultCard({ hit }: { hit: SearchHit }) {
         <div aria-hidden="true" className="absolute inset-0" style={{ background: PHOTO_SCRIM }} />
       </AspectBox>
       <div className="flex flex-col gap-1">
-        {typeof hit.country === 'string' ? (
-          <span className="text-[length:var(--text-xs)] uppercase tracking-[0.18em] text-ink-soft">
-            {hit.country}
-          </span>
-        ) : null}
+        {/* Preview .row label: "Portofino · Liguria" — locality · region,
+            country code only as the last resort. */}
+        {(() => {
+          const locality = [hit.locality, hit.region]
+            .filter((part): part is string => typeof part === 'string' && part.length > 0)
+            .join(' · ');
+          const label = locality || (typeof hit.country === 'string' ? hit.country : '');
+          return label ? (
+            <span className="text-[length:var(--text-xs)] uppercase tracking-[0.18em] text-ink-soft">
+              {label}
+            </span>
+          ) : null;
+        })()}
         <h3 className="font-display text-[length:var(--text-base)] text-ink group-hover:text-tide">
           {hit.title}
         </h3>

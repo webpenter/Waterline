@@ -27,7 +27,7 @@ export function Select({ label, options, error, id, className, ...props }: Selec
         aria-invalid={Boolean(error)}
         aria-describedby={errorId}
         className={clsx(
-          'h-10 rounded-md border border-line bg-white px-3 text-base text-ink',
+          'py-3 rounded-md border border-line bg-white px-3 text-base text-ink',
           'focus-visible:border-focus disabled:cursor-not-allowed disabled:bg-shell disabled:text-ink-soft/40',
           error && 'border-danger',
           className,

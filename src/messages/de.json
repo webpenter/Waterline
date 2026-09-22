@@ -145,7 +145,12 @@
     "formConsentRequired": "Bitte akzeptieren Sie die Einwilligung, damit wir Ihre Anfrage an die Agentur weitergeben können.",
     "formErrorSummary": "Bitte korrigieren Sie vor dem Senden Folgendes:",
     "formErrorName": "Geben Sie Ihren Namen ein (mindestens 2 Zeichen).",
-    "formErrorEmail": "Geben Sie eine gültige E-Mail-Adresse ein."
+    "formErrorEmail": "Geben Sie eine gültige E-Mail-Adresse ein.",
+    "locBedrooms": "{n} Schlafzimmer",
+    "locBathrooms": "{n} Badezimmer",
+    "locPlot": "Grundstück {area}",
+    "locBuilt": "Baujahr {year}",
+    "locRenovated": "renoviert {year}"
   },
   "footer": {
     "destinationsTitle": "Destinationen",
@@ -165,7 +170,8 @@
     "siblingsTitle": "Verwandte Wasserlagen-Suchen",
     "faqTitle": "Häufige Fragen",
     "enquiryTitle": "Zu dieser Region anfragen",
-    "enquirySub": "Sagen Sie uns, was Sie suchen — unser Desk leitet es an die passende Agentur weiter."
+    "enquirySub": "Sagen Sie uns, was Sie suchen — unser Desk leitet es an die passende Agentur weiter.",
+    "kicker": "Wasserlage"
   },
   "destinations": {
     "hubTitle": "Destinationen am Wasser",

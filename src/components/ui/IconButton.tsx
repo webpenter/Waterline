@@ -2,9 +2,9 @@ import { clsx } from 'clsx';
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
 
 const SIZE_CLASSES = {
-  sm: 'h-8 w-8',
-  md: 'h-10 w-10',
-  lg: 'h-12 w-12',
+  sm: 'p-2',
+  md: 'p-3',
+  lg: 'p-4',
 } as const;
 
 export type IconButtonSize = keyof typeof SIZE_CLASSES;

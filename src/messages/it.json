@@ -145,7 +145,12 @@
     "formConsentRequired": "Accettate la dichiarazione di consenso perché possiamo inoltrare la richiesta all'agenzia.",
     "formErrorSummary": "Correggete quanto segue prima di inviare:",
     "formErrorName": "Inserite il vostro nome (almeno 2 caratteri).",
-    "formErrorEmail": "Inserite un indirizzo email valido."
+    "formErrorEmail": "Inserite un indirizzo email valido.",
+    "locBedrooms": "{n} camere",
+    "locBathrooms": "{n} bagni",
+    "locPlot": "terreno {area}",
+    "locBuilt": "costruito nel {year}",
+    "locRenovated": "ristrutturato nel {year}"
   },
   "footer": {
     "destinationsTitle": "Destinazioni",
@@ -165,7 +170,8 @@
     "siblingsTitle": "Ricerche sull'acqua correlate",
     "faqTitle": "Domande frequenti",
     "enquiryTitle": "Informazioni su questa zona",
-    "enquirySub": "Diteci cosa cercate — il nostro desk la inoltra all'agenzia giusta."
+    "enquirySub": "Diteci cosa cercate — il nostro desk la inoltra all'agenzia giusta.",
+    "kicker": "Sull'acqua"
   },
   "destinations": {
     "hubTitle": "Destinazioni sull'acqua",

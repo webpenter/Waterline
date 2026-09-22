@@ -145,7 +145,12 @@
     "formConsentRequired": "Acepte la declaración de consentimiento para que podamos trasladar su consulta a la agencia.",
     "formErrorSummary": "Corrija lo siguiente antes de enviar:",
     "formErrorName": "Escriba su nombre (al menos 2 caracteres).",
-    "formErrorEmail": "Escriba una dirección de correo válida."
+    "formErrorEmail": "Escriba una dirección de correo válida.",
+    "locBedrooms": "{n} dormitorios",
+    "locBathrooms": "{n} baños",
+    "locPlot": "parcela {area}",
+    "locBuilt": "construido en {year}",
+    "locRenovated": "reformado en {year}"
   },
   "footer": {
     "destinationsTitle": "Destinos",
@@ -165,7 +170,8 @@
     "siblingsTitle": "Búsquedas relacionadas junto al agua",
     "faqTitle": "Preguntas frecuentes",
     "enquiryTitle": "Consultar sobre esta zona",
-    "enquirySub": "Cuéntenos qué busca — nuestro equipo lo dirige a la agencia adecuada."
+    "enquirySub": "Cuéntenos qué busca — nuestro equipo lo dirige a la agencia adecuada.",
+    "kicker": "Junto al agua"
   },
   "destinations": {
     "hubTitle": "Destinos junto al agua",

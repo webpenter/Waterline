@@ -145,7 +145,12 @@
     "formConsentRequired": "Please accept the consent statement so we can pass your enquiry to the agency.",
     "formErrorSummary": "Please correct the following before sending:",
     "formErrorName": "Enter your name (at least 2 characters).",
-    "formErrorEmail": "Enter a valid email address."
+    "formErrorEmail": "Enter a valid email address.",
+    "locBedrooms": "{n} bedrooms",
+    "locBathrooms": "{n} bathrooms",
+    "locPlot": "plot {area}",
+    "locBuilt": "built {year}",
+    "locRenovated": "renovated {year}"
   },
   "footer": {
     "destinationsTitle": "Destinations",
@@ -165,7 +170,8 @@
     "siblingsTitle": "Related waterfront searches",
     "faqTitle": "Frequently asked questions",
     "enquiryTitle": "Enquire about this area",
-    "enquirySub": "Tell us what you are looking for — our desk routes it to the right agency."
+    "enquirySub": "Tell us what you are looking for — our desk routes it to the right agency.",
+    "kicker": "Waterfront"
   },
   "destinations": {
     "hubTitle": "Waterfront destinations",

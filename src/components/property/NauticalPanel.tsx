@@ -51,7 +51,9 @@ export async function NauticalPanel({ property }: { property: Property }) {
   }
   if (property.nearestMarinaName) {
     const distance =
-      property.nearestMarinaDistanceKm != null ? ` · ${property.nearestMarinaDistanceKm} km` : '';
+      property.nearestMarinaDistanceKm != null
+        ? ` · ${Math.round(property.nearestMarinaDistanceKm * 10) / 10} km`
+        : '';
     rows.push([t('labelNearestMarina'), `${property.nearestMarinaName}${distance}`]);
   }
 

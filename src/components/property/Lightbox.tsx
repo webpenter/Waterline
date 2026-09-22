@@ -88,7 +88,7 @@ export function Lightbox({ images, currentIndex, labels, onClose, onNavigate }: 
         type="button"
         onClick={onClose}
         aria-label={labels.close}
-        className="absolute right-4 top-4 z-10 flex size-11 items-center justify-center rounded-pill bg-white/10 text-white hover:bg-white/20"
+        className="absolute right-4 top-4 z-10 flex p-3 items-center justify-center rounded-pill bg-white/10 text-white hover:bg-white/20"
       >
         <span aria-hidden="true">×</span>
       </button>
@@ -98,7 +98,7 @@ export function Lightbox({ images, currentIndex, labels, onClose, onNavigate }: 
           type="button"
           onClick={() => onNavigate(currentIndex - 1)}
           aria-label={labels.prev}
-          className="absolute left-4 top-1/2 flex size-12 -translate-y-1/2 items-center justify-center rounded-pill bg-white/10 text-white hover:bg-white/20"
+          className="absolute left-4 top-1/2 flex p-3 -translate-y-1/2 items-center justify-center rounded-pill bg-white/10 text-white hover:bg-white/20"
         >
           <span aria-hidden="true">‹</span>
         </button>
@@ -128,7 +128,7 @@ export function Lightbox({ images, currentIndex, labels, onClose, onNavigate }: 
           type="button"
           onClick={() => onNavigate(currentIndex + 1)}
           aria-label={labels.next}
-          className="absolute right-4 top-1/2 flex size-12 -translate-y-1/2 items-center justify-center rounded-pill bg-white/10 text-white hover:bg-white/20"
+          className="absolute right-4 top-1/2 flex p-3 -translate-y-1/2 items-center justify-center rounded-pill bg-white/10 text-white hover:bg-white/20"
         >
           <span aria-hidden="true">›</span>
         </button>

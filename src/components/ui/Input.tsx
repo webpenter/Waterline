@@ -23,7 +23,7 @@ export function Input({ label, error, hint, id, className, ...props }: InputProp
         aria-invalid={Boolean(error)}
         aria-describedby={clsx(hintId, errorId) || undefined}
         className={clsx(
-          'h-10 rounded-md border border-line bg-white px-3 text-base text-ink placeholder:text-ink-soft/60',
+          'py-3 rounded-md border border-line bg-white px-3 text-base text-ink placeholder:text-ink-soft/60',
           'focus-visible:border-focus disabled:cursor-not-allowed disabled:bg-shell disabled:text-ink-soft/40',
           error && 'border-danger',
           className,

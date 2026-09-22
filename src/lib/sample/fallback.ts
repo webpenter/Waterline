@@ -169,6 +169,7 @@ function matches(b: ListingBlueprint, filters: PropertyFilters): boolean {
 }
 
 function toHit(property: Property, b: ListingBlueprint): SearchHit {
+  const destination = SAMPLE_DESTINATION_BY_SLUG.get(b.destinationSlug);
   return {
     id: String(property.id),
     slug: property.slug ?? '',
@@ -187,6 +188,8 @@ function toHit(property: Property, b: ListingBlueprint): SearchHit {
     bathrooms: property.bathrooms ?? undefined,
     builtAreaSqm: property.builtAreaSqm ?? undefined,
     country: property.location?.country ?? undefined,
+    locality: b.locality,
+    region: destination?.region ?? undefined,
     location: [b.coordinates[1], b.coordinates[0]],
     approximate: b.coordinatePrecision === 'approximate_500m',
   };

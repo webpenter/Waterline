@@ -45,7 +45,7 @@ export function CurrencySwitcher({ label, dark = false }: { label: string; dark?
         className={`cursor-pointer text-xs font-medium transition-colors ${
           dark
             ? 'appearance-none border-0 bg-transparent p-0 uppercase tracking-[0.16em] text-white hover:text-white/80'
-            : 'h-8 rounded border border-line bg-white px-2 text-ink'
+            : 'py-1.5 rounded border border-line bg-white px-2 text-ink'
         }`}
       >
         {CURRENCIES.map((code) => (

@@ -32,6 +32,9 @@ export const PROPERTY_SEARCH_SCHEMA = {
     { name: 'builtAreaSqm', type: 'float' as const, optional: true },
     { name: 'plotAreaSqm', type: 'float' as const, optional: true },
     { name: 'country', type: 'string' as const, facet: true, optional: true },
+    // Display-only locality line for result rows ("Portofino · Liguria").
+    { name: 'locality', type: 'string' as const, optional: true },
+    { name: 'region', type: 'string' as const, optional: true },
     { name: 'destinationId', type: 'int64' as const, facet: true, optional: true },
     { name: 'location', type: 'geopoint' as const, optional: true },
     { name: 'approximate', type: 'bool' as const, optional: true },

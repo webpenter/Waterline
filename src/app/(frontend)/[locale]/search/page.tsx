@@ -154,6 +154,10 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
             <h2 aria-live="polite" className="text-sm font-medium text-ink">
               {t('resultsCount', { count: result.total })}
             </h2>
+            {/* Preview .rescount right label — bbox search follows map moves. */}
+            <span className="ml-auto mr-3 hidden text-[length:var(--text-xs)] uppercase tracking-[0.18em] text-ink-soft lg:inline">
+              {t('searchAsIMove')} <span aria-hidden="true">✓</span>
+            </span>
             <SortSelect
               label={t('sortLabel')}
               options={sortOptions}

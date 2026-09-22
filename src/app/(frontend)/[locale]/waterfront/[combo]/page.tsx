@@ -8,7 +8,8 @@ import { SiteFooter } from '@/components/layout/SiteFooter';
 import { SiteHeader } from '@/components/layout/SiteHeader';
 import { EnquiryForm } from '@/components/property/EnquiryForm';
 import { StatsStrip } from '@/components/property/StatsStrip';
-import { SearchResultCard } from '@/components/search/SearchResultCard';
+import { humanizeEnum } from '@/components/property/WaterChips';
+import { HitCard } from '@/components/search/HitCard';
 import { Link } from '@/i18n/navigation';
 import {
   getAggregatesForScope,
@@ -202,6 +203,16 @@ export default async function ComboPage({ params }: ComboPageProps) {
       <main>
         {/* Editorial first (§10.4): the intro opens with a direct answer (§14.6). */}
         <div className="max-w-[74ch] px-7 pb-2 pt-7">
+          {/* Preview .prose label: "Waterfront · Villas · Liguria". */}
+          <p className="mb-2 text-[length:var(--text-xs)] uppercase tracking-[0.18em] text-ink-soft">
+            {[
+              t('kicker'),
+              page.combo?.propertyType ? humanizeEnum(page.combo.propertyType) : null,
+              page.combo?.waterBodyType ? humanizeEnum(page.combo.waterBodyType) : null,
+            ]
+              .filter(Boolean)
+              .join(' · ')}
+          </p>
           <h1 className="mb-3 font-display text-2xl text-ink">{page.title}</h1>
           <div className="text-sm leading-relaxed text-ink-soft">
             {page.intro ? <RichText data={page.intro} /> : null}
@@ -214,9 +225,10 @@ export default async function ComboPage({ params }: ComboPageProps) {
           <section className="px-7 py-7">
             {/* sr-only h2 keeps the card h3s in a valid heading order (§15). */}
             <h2 className="sr-only">{t('listingsHeading')}</h2>
-            <div className="flex flex-col gap-3">
-              {listings.map((hit) => (
-                <SearchResultCard key={hit.id} hit={hit} />
+            {/* Preview §5: landing listings are a grid3 card grid, not rows. */}
+            <div className="grid gap-5 md:grid-cols-3">
+              {listings.slice(0, 6).map((hit) => (
+                <HitCard key={hit.id} hit={hit} />
               ))}
             </div>
             <Link

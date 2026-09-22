@@ -167,7 +167,7 @@ export function EnquiryForm({ propertyId, source = 'property', locale, labels }:
           autoComplete="name"
           aria-invalid={fieldErrors.name ? true : undefined}
           aria-describedby={fieldErrors.name ? errorId('name') : undefined}
-          className="h-10 rounded-md border border-line bg-white px-3 text-base text-ink"
+          className="py-3 rounded-md border border-line bg-white px-3 text-base text-ink"
         />
         {fieldErrors.name ? (
           <span id={errorId('name')} className="text-xs text-danger">
@@ -185,7 +185,7 @@ export function EnquiryForm({ propertyId, source = 'property', locale, labels }:
           autoComplete="email"
           aria-invalid={fieldErrors.email ? true : undefined}
           aria-describedby={fieldErrors.email ? errorId('email') : undefined}
-          className="h-10 rounded-md border border-line bg-white px-3 text-base text-ink"
+          className="py-3 rounded-md border border-line bg-white px-3 text-base text-ink"
         />
         {fieldErrors.email ? (
           <span id={errorId('email')} className="text-xs text-danger">
@@ -199,7 +199,7 @@ export function EnquiryForm({ propertyId, source = 'property', locale, labels }:
           name="phone"
           type="tel"
           autoComplete="tel"
-          className="h-10 rounded-md border border-line bg-white px-3 text-base text-ink"
+          className="py-3 rounded-md border border-line bg-white px-3 text-base text-ink"
         />
       </label>
       <label className="flex flex-col gap-1 text-sm text-ink">
