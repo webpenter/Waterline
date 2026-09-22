@@ -1,0 +1,378 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://waterline.com/schemas/listing.schema.json",
+  "title": "WATERLINE native listing feed",
+  "description": "POST { listings: [...] } to /api/feeds/{agencySlug} with the x-feed-token header. Field semantics follow the CSV template (spec §8.4); the water rule (>=1 water_access_types, distance_to_water_m <= 50) gates publication.",
+  "type": "object",
+  "required": [
+    "listings"
+  ],
+  "properties": {
+    "listings": {
+      "type": "array",
+      "maxItems": 2000,
+      "items": {
+        "type": "object",
+        "required": [
+          "reference"
+        ],
+        "properties": {
+          "reference": {
+            "type": "string",
+            "description": "Required."
+          },
+          "title_en": {
+            "type": "string",
+            "description": "Required."
+          },
+          "description_en": {
+            "type": "string",
+            "description": "Required."
+          },
+          "property_type": {
+            "type": "string",
+            "enum": [
+              "villa",
+              "apartment",
+              "penthouse",
+              "estate",
+              "farmhouse",
+              "chalet",
+              "townhouse",
+              "castle",
+              "lighthouse",
+              "boathouse",
+              "private_island",
+              "land_plot",
+              "marina_residence",
+              "development_project",
+              "hotel_resort"
+            ],
+            "description": "Required."
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "pending_review",
+              "in_market",
+              "under_offer",
+              "sold",
+              "withdrawn",
+              "expired",
+              "archived"
+            ],
+            "description": "Required."
+          },
+          "price_type": {
+            "type": "string",
+            "enum": [
+              "fixed",
+              "on_request",
+              "auction",
+              "poa"
+            ],
+            "description": "Required."
+          },
+          "price_amount": {
+            "type": "number"
+          },
+          "currency": {
+            "type": "string",
+            "enum": [
+              "EUR",
+              "USD",
+              "GBP",
+              "CHF",
+              "AED",
+              "SGD"
+            ],
+            "description": "Required."
+          },
+          "tenure": {
+            "type": "string",
+            "enum": [
+              "freehold",
+              "leasehold",
+              "concession",
+              "fractional",
+              "share_transfer"
+            ]
+          },
+          "bedrooms": {
+            "type": "integer",
+            "description": "Required."
+          },
+          "bathrooms": {
+            "type": "integer",
+            "description": "Required."
+          },
+          "built_area_sqm": {
+            "type": "number",
+            "description": "Required."
+          },
+          "plot_area_sqm": {
+            "type": "number"
+          },
+          "year_built": {
+            "type": "integer"
+          },
+          "condition": {
+            "type": "string",
+            "enum": [
+              "new",
+              "renovated",
+              "good",
+              "to_renovate",
+              "shell"
+            ]
+          },
+          "water_body_type": {
+            "type": "string",
+            "enum": [
+              "sea",
+              "ocean",
+              "lake",
+              "river",
+              "lagoon",
+              "canal",
+              "fjord",
+              "bay",
+              "estuary",
+              "reservoir",
+              "marina_basin"
+            ],
+            "description": "Required."
+          },
+          "water_body_name": {
+            "type": "string"
+          },
+          "water_access_types": {
+            "oneOf": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "private_beach",
+                    "shared_beach",
+                    "direct_shore",
+                    "private_dock",
+                    "private_mooring",
+                    "marina_berth_included",
+                    "boathouse",
+                    "slipway",
+                    "seawall_quay",
+                    "rock_platform",
+                    "riparian_access",
+                    "whole_island"
+                  ]
+                }
+              },
+              {
+                "type": "string",
+                "description": "Pipe-separated values"
+              }
+            ],
+            "description": "Required."
+          },
+          "distance_to_water_m": {
+            "type": "integer",
+            "description": "Required."
+          },
+          "water_frontage_m": {
+            "type": "number"
+          },
+          "beach_type": {
+            "type": "string",
+            "enum": [
+              "sand",
+              "pebble",
+              "rock",
+              "mixed",
+              "none"
+            ]
+          },
+          "orientation": {
+            "type": "string",
+            "enum": [
+              "N",
+              "NE",
+              "E",
+              "SE",
+              "S",
+              "SW",
+              "W",
+              "NW"
+            ]
+          },
+          "swimmable": {
+            "type": "boolean"
+          },
+          "shoreline_tenure": {
+            "type": "string",
+            "enum": [
+              "private_to_waterline",
+              "private_to_high_water",
+              "public_easement",
+              "state_concession",
+              "riparian_rights"
+            ]
+          },
+          "concession_expiry": {
+            "type": "string",
+            "format": "date"
+          },
+          "flood_zone": {
+            "type": "string"
+          },
+          "waterfront_protection": {
+            "type": "string",
+            "enum": [
+              "natural",
+              "seawall",
+              "riprap",
+              "breakwater",
+              "pier_only"
+            ]
+          },
+          "mooring_type": {
+            "type": "string",
+            "enum": [
+              "none",
+              "buoy",
+              "jetty",
+              "pontoon",
+              "fixed_dock",
+              "floating_dock",
+              "boat_lift",
+              "dry_dock",
+              "marina_berth"
+            ]
+          },
+          "berth_count": {
+            "type": "integer"
+          },
+          "max_boat_loa_m": {
+            "type": "number"
+          },
+          "max_boat_beam_m": {
+            "type": "number"
+          },
+          "water_depth_at_berth_m": {
+            "type": "number"
+          },
+          "navigable_to_open_sea": {
+            "type": "boolean"
+          },
+          "fixed_bridges_to_open_sea": {
+            "type": "boolean"
+          },
+          "min_bridge_clearance_m": {
+            "type": "number"
+          },
+          "nearest_marina_name": {
+            "type": "string"
+          },
+          "nearest_marina_distance_km": {
+            "type": "number"
+          },
+          "country": {
+            "type": "string",
+            "description": "Required."
+          },
+          "region": {
+            "type": "string"
+          },
+          "province": {
+            "type": "string"
+          },
+          "locality": {
+            "type": "string",
+            "description": "Required."
+          },
+          "address_line": {
+            "type": "string"
+          },
+          "latitude": {
+            "type": "number",
+            "description": "Required."
+          },
+          "longitude": {
+            "type": "number",
+            "description": "Required."
+          },
+          "coordinate_precision": {
+            "type": "string",
+            "enum": [
+              "exact",
+              "approximate_500m",
+              "hidden"
+            ]
+          },
+          "features": {
+            "oneOf": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "pool",
+                    "infinity_pool",
+                    "heated_pool",
+                    "gym",
+                    "spa",
+                    "sauna",
+                    "staff_quarters",
+                    "helipad",
+                    "tennis",
+                    "vineyard",
+                    "olive_grove",
+                    "solar",
+                    "geothermal",
+                    "elevator",
+                    "gated",
+                    "smart_home",
+                    "guest_house",
+                    "garage",
+                    "wine_cellar",
+                    "cinema"
+                  ]
+                }
+              },
+              {
+                "type": "string",
+                "description": "Pipe-separated values"
+              }
+            ]
+          },
+          "image_urls": {
+            "oneOf": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "uri"
+                }
+              },
+              {
+                "type": "string",
+                "description": "Pipe-separated absolute URLs"
+              }
+            ],
+            "description": "Required."
+          },
+          "agent_email": {
+            "type": "string"
+          },
+          "video_url": {
+            "type": "string"
+          },
+          "virtual_tour_url": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

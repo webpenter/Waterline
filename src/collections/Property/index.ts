@@ -498,6 +498,15 @@ export const Property: CollectionConfig = {
       admin: { position: 'sidebar', description: 'Set when the agency confirms the listing is still available.' },
     },
     {
+      name: 'expiryReminderSentAt',
+      type: 'date',
+      admin: {
+        position: 'sidebar',
+        readOnly: true,
+        description: 'When the §8.7 T-14 confirmation email last went out.',
+      },
+    },
+    {
       name: 'sourceType',
       type: 'select',
       required: true,
