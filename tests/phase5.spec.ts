@@ -9,8 +9,11 @@ test('destinations hub renders with h1 and hreflang', async ({ page }) => {
   await expect(page.locator('link[rel="alternate"][hreflang="x-default"]')).toHaveCount(1);
 });
 
-test('an unpublished/unknown combo 404s (§5.4 gate)', async ({ request }) => {
-  const response = await request.get('/en/waterfront/villas-sea-liguria');
+test('an unknown combo 404s (§5.4 gate)', async ({ request }) => {
+  // Seed combos (villas-sea-liguria …) render as gated, noindexed demo
+  // landings in demo mode since Prompt 16 (see phase11.spec.ts); the §5.4
+  // gate is proven by combos outside the seed set staying hard 404s.
+  const response = await request.get('/en/waterfront/villas-sea-avalon');
   expect(response.status()).toBe(404);
 });
 
