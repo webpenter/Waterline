@@ -8,6 +8,8 @@ interface BoatFitStripProps {
   title: string;
   sub: string;
   lengthLabel: string;
+  /** Rendered right of the slider, e.g. "Draft 2.5 m" (preview .scale row). */
+  draftLabel: string;
   searchCta: string;
   /** Count of properties whose berth takes each bucket's LOA (precomputed at build, §10.1). */
   bucketCounts: Record<number, number>;
@@ -25,6 +27,7 @@ export function BoatFitStrip({
   title,
   sub,
   lengthLabel,
+  draftLabel,
   searchCta,
   bucketCounts,
   resultTemplate,
@@ -58,10 +61,13 @@ export function BoatFitStrip({
           aria-label={lengthLabel}
           className="w-full accent-sand"
         />
-        <p className="mt-1 text-[length:var(--text-xs)] text-sand">
-          {lengthLabel} · {loa} m
-        </p>
-        <p aria-live="polite" className="mt-4 font-display text-2xl">
+        <div className="mt-1 flex justify-between text-[length:var(--text-xs)] tabular-nums">
+          <span className="text-sand">
+            {lengthLabel} · {loa} m
+          </span>
+          <span className="text-white/50">{draftLabel}</span>
+        </div>
+        <p aria-live="polite" className="mt-4 font-display text-3xl">
           {before}
           <em className="not-italic text-sand tabular-nums">
             {new Intl.NumberFormat(locale).format(count)}

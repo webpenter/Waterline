@@ -242,16 +242,6 @@ export default async function HomePage({
       ) : null}
 
       {/* 5 · "Will it fit?" — the brand moment (§10.1). */}
-      <BoatFitStrip
-        title={t('boatStripTitle')}
-        sub={t('boatStripSub')}
-        lengthLabel={ts('fieldBoatLength')}
-        searchCta={t('searchCta')}
-        bucketCounts={bucketCounts}
-        resultTemplate={t.raw('boatStripResult') as string}
-        locale={locale}
-      />
-
       {/* 6 · Why WATERLINE (§10.1 / §11.1). */}
       <section className="grid gap-6 px-7 py-9 md:grid-cols-3">
         {(['whyVerified', 'whyFrontage', 'whyBerth'] as const).map((key) => (
@@ -272,6 +262,19 @@ export default async function HomePage({
           {nav('listWithUs')}
         </Link>
       </section>
+
+      {/* 5 · "Will it fit?" — the brand moment sits flush above the footer,
+          forming one continuous abyss band per the design preview. */}
+      <BoatFitStrip
+        title={t('boatStripTitle')}
+        sub={t('boatStripSub')}
+        lengthLabel={t('boatStripLength')}
+        draftLabel={t('boatStripDraft', { draft: '2.5' })}
+        searchCta={t('searchCta')}
+        bucketCounts={bucketCounts}
+        resultTemplate={t.raw('boatStripResult') as string}
+        locale={locale}
+      />
       </main>
 
       <SiteFooter />

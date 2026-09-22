@@ -24,7 +24,7 @@ test.describe('Home (§10.1)', () => {
 
   test('the Will-it-fit slider updates the result line instantly', async ({ page }) => {
     await page.goto('/en');
-    const slider = page.getByRole('slider', { name: 'Boat length' });
+    const slider = page.getByRole('slider', { name: 'Length overall' });
     await slider.fill('40');
     await expect(page.locator('section', { hasText: 'Will it fit?' })).toContainText('40');
   });
