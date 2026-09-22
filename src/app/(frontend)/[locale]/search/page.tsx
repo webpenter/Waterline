@@ -29,6 +29,8 @@ interface SearchPageProps {
   searchParams: Promise<SearchParams>;
 }
 
+import { fallbackSearch, sampleFallbackEnabled } from '@/lib/sample/fallback';
+
 const EMPTY_RESULT: SearchResult = {
   hits: [],
   total: 0,
@@ -39,10 +41,13 @@ const EMPTY_RESULT: SearchResult = {
 
 async function safeSearch(filters: PropertyFilters): Promise<SearchResult> {
   try {
+    // The engine answered: its result is final — a legitimate zero keeps the
+    // computed empty state working (§11.3).
     return await searchProperties(filters);
   } catch (err) {
-    console.warn('[search-page] search unavailable, serving empty results:', err);
-    return EMPTY_RESULT;
+    console.warn('[search-page] search unavailable:', err);
+    // DB-error path only, demo mode only — and the demo honours the filters.
+    return sampleFallbackEnabled() ? fallbackSearch(filters) : EMPTY_RESULT;
   }
 }
 

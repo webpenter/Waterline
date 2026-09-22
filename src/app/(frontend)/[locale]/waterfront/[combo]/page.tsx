@@ -25,7 +25,7 @@ import {
   passesEditorialGate,
   rankSiblings,
 } from '@/lib/seo/combos';
-import { hreflangAlternates } from '@/lib/seo/hreflang';
+import { buildPageMetadata } from '@/lib/seo/metadata';
 import { breadcrumbJsonLd, faqPageJsonLd } from '@/lib/seo/jsonld';
 import type { LandingPage } from '@/payload-types';
 
@@ -93,12 +93,26 @@ export async function generateMetadata({ params }: ComboPageProps): Promise<Meta
   if (!page) return {};
   const aggregates = await safeAggregates(page);
 
-  return {
-    // §11.4 landing template with §14.2 fallbacks; count keeps titles unique.
+  // §11.4 landing templates with §14.2 fallbacks; count keeps titles unique.
+  const generatedDescription = [
+    `Browse ${aggregates.count} verified waterfront listings.`,
+    aggregates.medianPriceEur != null
+      ? `Median price €${Math.round(aggregates.medianPriceEur / 1000)}k.`
+      : null,
+    aggregates.medianFrontageM != null
+      ? `Median frontage ${aggregates.medianFrontageM} m.`
+      : null,
+  ]
+    .filter(Boolean)
+    .join(' ');
+
+  return buildPageMetadata({
     title: page.metaTitle ?? `${page.title} — ${aggregates.count} for sale`,
-    description: page.metaDescription ?? undefined,
-    alternates: hreflangAlternates(`/waterfront/${combo}`),
-  };
+    description: page.metaDescription ?? generatedDescription,
+    path: `/waterfront/${combo}`,
+    locale,
+    ogImage: `/api/og/landing/${combo}`,
+  });
 }
 
 export default async function ComboPage({ params }: ComboPageProps) {

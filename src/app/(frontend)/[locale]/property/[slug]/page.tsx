@@ -18,8 +18,10 @@ import { getPropertyForDetail, getPublicSlugs, getPayloadClient, type Locale } f
 import { sanitizePropertyForPublic } from '@/lib/db/sanitize';
 import { formatArea, formatPriceEur } from '@/lib/intl/format';
 import { getViewerPreferences } from '@/lib/intl/preferences';
-import { hreflangAlternates } from '@/lib/seo/hreflang';
+import { soldPageIsNoindex } from '@/lib/expiry';
+import { buildPageMetadata } from '@/lib/seo/metadata';
 import { breadcrumbJsonLd, realEstateListingJsonLd } from '@/lib/seo/jsonld';
+import { findFallbackProperty, sampleFallbackEnabled } from '@/lib/sample/fallback';
 import { rankSimilar, similarCandidatesWhere } from '@/lib/similar';
 import type { Agency, Agent, Property } from '@/payload-types';
 
@@ -37,10 +39,12 @@ export async function generateStaticParams(): Promise<Array<{ slug: string }>> {
 
 async function loadProperty(slug: string, locale: string): Promise<Property | null> {
   try {
+    // Database answered: its verdict is final — unknown slugs 404.
     return await getPropertyForDetail(slug, locale as Locale);
   } catch (err) {
-    console.warn('[property-page] load failed, treating as not found:', err);
-    return null;
+    console.warn('[property-page] load failed:', err);
+    // DB-error path only, demo mode only, exact slug only (§13.12).
+    return sampleFallbackEnabled() ? findFallbackProperty(slug) : null;
   }
 }
 
@@ -64,7 +68,7 @@ export async function generateMetadata({ params }: DetailPageProps): Promise<Met
   const property = await loadProperty(slug, locale);
   if (!property) return {};
 
-  // §11.4 meta template: {title} — {propertyType} with {accessType} in {locality}, {country}
+  // §11.4 meta template: {title} — {propertyType} with {accessType} in {locality}
   const access = property.waterAccessType?.[0];
   const parts = [
     property.title,
@@ -74,15 +78,31 @@ export async function generateMetadata({ params }: DetailPageProps): Promise<Met
     property.location?.locality ? `in ${property.location.locality}` : null,
   ].filter(Boolean);
 
-  return {
+  // §11.4 description template from structured fields when no manual meta.
+  const generatedDescription = [
+    property.bedrooms != null ? `${property.bedrooms} bedrooms` : null,
+    property.builtAreaSqm != null ? `${property.builtAreaSqm} m²` : null,
+    property.waterFrontageM != null
+      ? `${property.waterFrontageM} m of private ${humanizeEnum(property.waterBodyType ?? 'water').toLowerCase()} frontage`
+      : null,
+    property.location?.locality ? `in ${property.location.locality}` : null,
+  ]
+    .filter(Boolean)
+    .join(', ');
+
+  const noindex =
+    property.visibility === 'unlisted' ||
+    property.isSample ||
+    soldPageIsNoindex(property, new Date());
+
+  return buildPageMetadata({
     title: property.metaTitle ?? parts.join(' '),
-    description: property.metaDescription ?? property.subtitle ?? undefined,
-    robots:
-      property.visibility === 'unlisted' || property.isSample
-        ? { index: false, follow: false }
-        : undefined,
-    alternates: hreflangAlternates(`/property/${slug}`),
-  };
+    description: property.metaDescription ?? generatedDescription ?? property.subtitle,
+    path: `/property/${slug}`,
+    locale,
+    robots: noindex ? { index: false, follow: false } : undefined,
+    ogImage: `/api/og/property/${slug}`,
+  });
 }
 
 export default async function PropertyPage({ params }: DetailPageProps) {

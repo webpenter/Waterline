@@ -1,12 +1,14 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { NextIntlClientProvider } from 'next-intl';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import React from 'react';
 
 import { CookieConsent } from '@/components/layout/CookieConsent';
 import { brand } from '@/config/brand';
 import { LOCALES, type AppLocale } from '@/i18n/routing';
-import { hreflangAlternates } from '@/lib/seo/hreflang';
+import { organizationJsonLd, webSiteJsonLd } from '@/lib/seo/jsonld';
+import { buildPageMetadata } from '@/lib/seo/metadata';
 import { bodyFont, displayFont } from '@/tokens/fonts';
 
 import '../styles.css';
@@ -20,12 +22,13 @@ export async function generateMetadata({
 }: {
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
-  await params;
-  return {
+  const { locale } = await params;
+  return buildPageMetadata({
     title: brand.name,
     description: brand.description,
-    alternates: hreflangAlternates('/'),
-  };
+    path: '/',
+    locale,
+  });
 }
 
 export default async function LocaleLayout({
@@ -50,12 +53,16 @@ export default async function LocaleLayout({
       className={`${displayFont.variable} ${bodyFont.variable}`}
       suppressHydrationWarning
     >
-      {/* Performance budget (CLAUDE.md rule 1): no NextIntlClientProvider —
-          all translation happens in Server Components; client components
-          receive translated strings as props. The next-intl client runtime
-          (~20 kB gz) must never enter the bundle. */}
       <body>
-        {children}
+        {/* §14.3/§14.6: Organization + WebSite (SearchAction) on every page —
+            entity clarity for search engines and assistants alike. */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify([organizationJsonLd(), webSiteJsonLd()]),
+          }}
+        />
+        <NextIntlClientProvider locale={locale}>{children}</NextIntlClientProvider>
         {/* §4 decision 7: consent is non-blocking, deferred, never
             layout-shifting — fixed-position and rendered post-hydration. */}
         <CookieConsent

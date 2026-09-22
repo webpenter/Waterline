@@ -1,8 +1,14 @@
 import { NextResponse, type NextRequest } from 'next/server';
 
-import { getPayloadClient } from '@/lib/db';
+import { getPayloadClient, getPublishedLandingPages } from '@/lib/db';
 import { sendEmail } from '@/lib/email/send';
-import { decideExpiryAction, REMINDER_WINDOW_DAYS } from '@/lib/expiry';
+import {
+  decideExpiryAction,
+  REMINDER_WINDOW_DAYS,
+  SOLD_RETIRE_AFTER_DAYS,
+  soldPageShouldRetire,
+} from '@/lib/expiry';
+import { passesEditorialGate } from '@/lib/seo/combos';
 import { deletePropertyDocument } from '@/lib/search/sync';
 
 export const maxDuration = 300;
@@ -89,5 +95,63 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     }
   }
 
-  return NextResponse.json({ ok: true, scanned: candidates.totalDocs, reminded, expired });
+  // §14.5: sold listings past the 90-day courtesy window retire — archived,
+  // out of search, 301 to the parent landing page (or /search).
+  let retired = 0;
+  const soldSince = new Date(
+    now.getTime() - SOLD_RETIRE_AFTER_DAYS * 24 * 60 * 60 * 1000,
+  ).toISOString();
+  const soldCandidates = await payload.find({
+    collection: 'properties',
+    where: {
+      and: [{ status: { equals: 'sold' } }, { updatedAt: { less_than_equal: soldSince } }],
+    },
+    limit: 200,
+    depth: 0,
+    overrideAccess: true,
+  });
+  const landingPages = soldCandidates.docs.length
+    ? (await getPublishedLandingPages('en', 200).catch(() => [])).filter(passesEditorialGate)
+    : [];
+
+  for (const listing of soldCandidates.docs) {
+    if (!soldPageShouldRetire(listing, now)) continue;
+    const destinationId =
+      typeof listing.location?.destination === 'object'
+        ? listing.location.destination?.id
+        : listing.location?.destination;
+    const parent = landingPages.find((page) => {
+      const combo = page.combo?.destination;
+      return (typeof combo === 'object' ? combo?.id : combo) === destinationId;
+    });
+    const to = parent ? `/waterfront/${parent.slug}` : '/search';
+
+    await payload.update({
+      collection: 'properties',
+      id: listing.id,
+      data: { status: 'archived' },
+      overrideAccess: true,
+    });
+    await deletePropertyDocument(String(listing.id));
+    if (listing.slug) {
+      const from = `/property/${listing.slug}`;
+      const existing = await payload.find({
+        collection: 'redirects',
+        where: { from: { equals: from } },
+        limit: 1,
+        depth: 0,
+        overrideAccess: true,
+      });
+      if (!existing.docs[0]) {
+        await payload.create({
+          collection: 'redirects',
+          overrideAccess: true,
+          data: { from, to, statusCode: '301' },
+        });
+      }
+    }
+    retired += 1;
+  }
+
+  return NextResponse.json({ ok: true, scanned: candidates.totalDocs, reminded, expired, retired });
 }

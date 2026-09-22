@@ -80,3 +80,51 @@ describe('breadcrumbJsonLd', () => {
     expect(items[2]?.item).toMatch(/\/en\/property\/villa$/);
   });
 });
+
+describe('organization + website JSON-LD (§14.3)', async () => {
+  const { organizationJsonLd, webSiteJsonLd, articleJsonLd, realEstateAgentJsonLd } = await import(
+    './jsonld'
+  );
+
+  it('Organization carries identity and sameAs links', () => {
+    const jsonLd = organizationJsonLd();
+    expect(jsonLd['@type']).toBe('Organization');
+    expect(jsonLd.name).toBe('WATERLINE');
+    expect(Array.isArray(jsonLd.sameAs)).toBe(true);
+    expect((jsonLd.sameAs as string[]).length).toBeGreaterThan(0);
+  });
+
+  it('WebSite exposes a SearchAction with query-input', () => {
+    const jsonLd = webSiteJsonLd();
+    expect(jsonLd['@type']).toBe('WebSite');
+    const action = jsonLd.potentialAction as { '@type': string; 'query-input': string };
+    expect(action['@type']).toBe('SearchAction');
+    expect(action['query-input']).toContain('search_term_string');
+  });
+
+  it('Article carries freshness signals and a publisher', () => {
+    const jsonLd = articleJsonLd(
+      {
+        slug: 'no-fixed-bridges',
+        title: 'What “no fixed bridges” means',
+        publishedAt: '2026-09-01T00:00:00.000Z',
+        updatedAt: '2026-09-20T00:00:00.000Z',
+        authorName: 'Editorial Desk',
+      },
+      'en',
+    );
+    expect(jsonLd['@type']).toBe('Article');
+    expect(jsonLd.dateModified).toBe('2026-09-20T00:00:00.000Z');
+    expect((jsonLd.author as { name: string }).name).toBe('Editorial Desk');
+  });
+
+  it('RealEstateAgent builds from an agency profile', () => {
+    const jsonLd = realEstateAgentJsonLd(
+      { slug: 'riviera-blu', name: 'Riviera Blu', country: 'IT', website: 'https://example.com' },
+      'en',
+    );
+    expect(jsonLd['@type']).toBe('RealEstateAgent');
+    expect(String(jsonLd.url)).toContain('/en/agencies/riviera-blu');
+    expect(jsonLd.sameAs).toEqual(['https://example.com']);
+  });
+});

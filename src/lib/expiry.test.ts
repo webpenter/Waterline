@@ -43,3 +43,21 @@ describe('decideExpiryAction (§8.7)', () => {
     expect(decideExpiryAction({ status: 'in_market', expiresAt: null }, NOW)).toBe('none');
   });
 });
+
+describe('sold lifecycle (§14.5)', async () => {
+  const { soldPageIsNoindex, soldPageShouldRetire } = await import('./expiry');
+  const NOW = new Date('2026-09-22T12:00:00Z');
+  const daysAgo = (d: number) => new Date(NOW.getTime() - d * 24 * 3600_000).toISOString();
+
+  it('keeps sold pages indexable for 30 days, then noindex', () => {
+    expect(soldPageIsNoindex({ status: 'sold', updatedAt: daysAgo(29) }, NOW)).toBe(false);
+    expect(soldPageIsNoindex({ status: 'sold', updatedAt: daysAgo(31) }, NOW)).toBe(true);
+    expect(soldPageIsNoindex({ status: 'in_market', updatedAt: daysAgo(60) }, NOW)).toBe(false);
+  });
+
+  it('retires sold pages after 90 days', () => {
+    expect(soldPageShouldRetire({ status: 'sold', updatedAt: daysAgo(89) }, NOW)).toBe(false);
+    expect(soldPageShouldRetire({ status: 'sold', updatedAt: daysAgo(91) }, NOW)).toBe(true);
+    expect(soldPageShouldRetire({ status: 'expired', updatedAt: daysAgo(120) }, NOW)).toBe(false);
+  });
+});

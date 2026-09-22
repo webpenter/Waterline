@@ -6,7 +6,9 @@ export default defineConfig({
   testIgnore: ['**/int/**'],
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
+  // One local retry: dev-mode compile storms make the first hit on a heavy
+  // route contend across workers; CI (production-like, workers=1) keeps 2.
+  retries: process.env.CI ? 2 : 1,
   workers: process.env.CI ? 1 : undefined,
   reporter: 'html',
   // Dev-mode compiles routes on first hit; the Payload-linked pages take well
@@ -30,7 +32,9 @@ export default defineConfig({
   ],
   webServer: {
     command: 'pnpm dev',
-    url: 'http://localhost:3000/api/health',
+    // /en compiles the heaviest tree and completes the first (slow) Payload
+    // connection attempt, arming the fail-fast cooldown before tests start.
+    url: 'http://localhost:3000/en',
     reuseExistingServer: !process.env.CI,
     timeout: 120000,
   },

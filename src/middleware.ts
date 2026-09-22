@@ -14,26 +14,31 @@ function detectLocale(request: NextRequest): AppLocale {
   return DEFAULT_LOCALE;
 }
 
-// §14.5/§8.7: expired listing URLs answer 410 Gone. Redirect records are
-// looked up through the cached /api/gone route; results memoised per instance.
+// §14.5/§8.7: expired listing URLs answer 410 Gone; changed slugs 301 to the
+// new URL. Redirect records are looked up through the cached /api/gone route
+// and memoised per instance.
 const PROPERTY_PATH = /^\/(en|it|fr|de|es|ru)(\/property\/[^/]+)$/;
-const goneCache = new Map<string, { gone: boolean; at: number }>();
-const GONE_TTL_MS = 5 * 60 * 1000;
 
-async function isGone(request: NextRequest, path: string): Promise<boolean> {
-  const cached = goneCache.get(path);
-  if (cached && Date.now() - cached.at < GONE_TTL_MS) return cached.gone;
+interface RedirectDecision {
+  statusCode: string | null;
+  to: string | null;
+}
+const redirectCache = new Map<string, { decision: RedirectDecision; at: number }>();
+const REDIRECT_TTL_MS = 5 * 60 * 1000;
+
+async function lookupRedirect(request: NextRequest, path: string): Promise<RedirectDecision> {
+  const cached = redirectCache.get(path);
+  if (cached && Date.now() - cached.at < REDIRECT_TTL_MS) return cached.decision;
   try {
     const res = await fetch(
       `${request.nextUrl.origin}/api/gone?path=${encodeURIComponent(path)}`,
       { signal: AbortSignal.timeout(1500) },
     );
-    const data = (await res.json()) as { statusCode: string | null };
-    const gone = data.statusCode === '410';
-    goneCache.set(path, { gone, at: Date.now() });
-    return gone;
+    const decision = (await res.json()) as RedirectDecision;
+    redirectCache.set(path, { decision, at: Date.now() });
+    return decision;
   } catch {
-    return false;
+    return { statusCode: null, to: null };
   }
 }
 
@@ -49,10 +54,18 @@ export default async function middleware(request: NextRequest): Promise<NextResp
   }
 
   const propertyMatch = PROPERTY_PATH.exec(request.nextUrl.pathname);
-  if (propertyMatch && (await isGone(request, propertyMatch[2] as string))) {
-    const url = request.nextUrl.clone();
-    url.pathname = `/${propertyMatch[1]}/gone`;
-    return NextResponse.rewrite(url, { status: 410 });
+  if (propertyMatch) {
+    const decision = await lookupRedirect(request, propertyMatch[2] as string);
+    if (decision.statusCode === '410') {
+      const url = request.nextUrl.clone();
+      url.pathname = `/${propertyMatch[1]}/gone`;
+      return NextResponse.rewrite(url, { status: 410 });
+    }
+    if ((decision.statusCode === '301' || decision.statusCode === '302') && decision.to) {
+      const url = request.nextUrl.clone();
+      url.pathname = `/${propertyMatch[1]}${decision.to}`;
+      return NextResponse.redirect(url, decision.statusCode === '301' ? 301 : 302);
+    }
   }
 
   return intlMiddleware(request) as NextResponse;

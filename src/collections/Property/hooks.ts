@@ -112,9 +112,13 @@ export const computeDerivedFields: CollectionBeforeChangeHook = async ({
     out.priceEur = null;
   }
 
-  // Slug — generated on first publish only, immutable afterwards (§6.1).
+  // Slug — generated on first publish (§6.1). A deliberate admin edit is
+  // honoured; §14.5's 301 Redirect record is written in syncAfterChange.
   const existingSlug = (originalDoc as PropertyData | undefined)?.slug as string | undefined;
-  if (existingSlug) {
+  const incomingSlug = typeof data?.slug === 'string' ? data.slug.trim() : '';
+  if (existingSlug && incomingSlug && incomingSlug !== existingSlug) {
+    out.slug = slugify(incomingSlug);
+  } else if (existingSlug) {
     out.slug = existingSlug;
   } else if (doc._status === 'published' && !doc.slug) {
     const location = doc.location as PropertyData | undefined;
@@ -168,6 +172,31 @@ export const syncAfterChange: CollectionAfterChangeHook = async ({
   if (req.context?.viewBeacon) return doc;
 
   const d = doc as PropertyData;
+
+  // §14.5: a slug change creates an automatic 301 from the old URL; the old
+  // slug is never reused.
+  const previousSlug = (previousDoc as PropertyData | undefined)?.slug as string | undefined;
+  if (previousSlug && typeof d.slug === 'string' && d.slug && d.slug !== previousSlug) {
+    try {
+      const from = `/property/${previousSlug}`;
+      const existing = await req.payload.find({
+        collection: 'redirects',
+        where: { from: { equals: from } },
+        limit: 1,
+        depth: 0,
+        overrideAccess: true,
+      });
+      if (!existing.docs[0]) {
+        await req.payload.create({
+          collection: 'redirects',
+          overrideAccess: true,
+          data: { from, to: `/property/${d.slug}`, statusCode: '301' },
+        });
+      }
+    } catch (err) {
+      console.warn('[slug-redirect] failed to record 301:', err);
+    }
+  }
 
   const justPublished =
     d._status === 'published' && (previousDoc as PropertyData | undefined)?._status !== 'published';

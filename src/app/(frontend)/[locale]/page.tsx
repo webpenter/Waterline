@@ -15,11 +15,19 @@ import { HERO_SCRIM, HORIZON_LINE, horizonGradientFor } from '@/tokens/placehold
 // SSG + ISR 300 s (§10.1).
 export const revalidate = 300;
 
+import {
+  FALLBACK_DESTINATIONS,
+  FALLBACK_FEATURED,
+  fallbackSearch,
+  sampleFallbackEnabled,
+} from '@/lib/sample/fallback';
+
 async function safeFeatured(locale: Locale): Promise<Property[]> {
   try {
+    // The database answered — an empty featured list is a legitimate state.
     return await getFeatured(6, locale);
   } catch {
-    return [];
+    return sampleFallbackEnabled() ? FALLBACK_FEATURED : [];
   }
 }
 
@@ -27,7 +35,7 @@ async function safeDestinations(locale: Locale): Promise<DestinationCount[]> {
   try {
     return (await getDestinationCounts(locale)).slice(0, 8);
   } catch {
-    return [];
+    return sampleFallbackEnabled() ? FALLBACK_DESTINATIONS.slice(0, 8) : [];
   }
 }
 
@@ -39,7 +47,9 @@ async function safeBucketCounts(): Promise<Record<number, number>> {
       const result = await searchPropertiesPostgres({ boatLoaM: bucket, limit: 1 });
       counts[bucket] = result.total;
     } catch {
-      counts[bucket] = 0;
+      counts[bucket] = sampleFallbackEnabled()
+        ? fallbackSearch({ boatLoaM: bucket, limit: 1 }).total
+        : 0;
     }
   }
   return counts;

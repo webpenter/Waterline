@@ -15,6 +15,32 @@ export interface ExpiryCandidate {
 
 export type ExpiryAction = 'expire' | 'remind' | 'none';
 
+// §14.5 sold lifecycle: the page stays live 90 days with a banner, goes
+// noindex after 30, then 301s to the parent landing page. updatedAt stands in
+// for the sold date — status changes touch updatedAt, and a later edit only
+// extends the courtesy window (never truncates it).
+export const SOLD_NOINDEX_AFTER_DAYS = 30;
+export const SOLD_RETIRE_AFTER_DAYS = 90;
+
+export interface SoldCandidate {
+  status: string;
+  updatedAt: string;
+}
+
+export function soldPageIsNoindex(listing: SoldCandidate, now: Date): boolean {
+  if (listing.status !== 'sold') return false;
+  const since = new Date(listing.updatedAt);
+  if (Number.isNaN(since.getTime())) return false;
+  return now.getTime() - since.getTime() >= SOLD_NOINDEX_AFTER_DAYS * 24 * 60 * 60 * 1000;
+}
+
+export function soldPageShouldRetire(listing: SoldCandidate, now: Date): boolean {
+  if (listing.status !== 'sold') return false;
+  const since = new Date(listing.updatedAt);
+  if (Number.isNaN(since.getTime())) return false;
+  return now.getTime() - since.getTime() >= SOLD_RETIRE_AFTER_DAYS * 24 * 60 * 60 * 1000;
+}
+
 export function decideExpiryAction(listing: ExpiryCandidate, now: Date): ExpiryAction {
   if (!['in_market', 'under_offer'].includes(listing.status)) return 'none';
   if (!listing.expiresAt) return 'none';
