@@ -141,9 +141,10 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
         <section id="results-list" className="bg-shell px-5 py-4">
           <h1 className="sr-only">{t('pageTitle')}</h1>
           <div className="mb-3 flex items-baseline justify-between gap-4">
-            <p aria-live="polite" className="text-sm font-medium text-ink">
+            {/* h2 so card titles (h3) keep a valid heading order under the sr-only h1 */}
+            <h2 aria-live="polite" className="text-sm font-medium text-ink">
               {t('resultsCount', { count: result.total })}
-            </p>
+            </h2>
             <SortSelect
               label={t('sortLabel')}
               options={sortOptions}

@@ -38,7 +38,7 @@ export const Property: CollectionConfig = {
     useAsTitle: 'title',
     defaultColumns: ['title', 'status', 'moderation', 'agency', 'priceEur', 'waterFrontageM'],
     description:
-      'A listing publishes only with at least one water access type and distance to water ≤ 50 m. This rule is the brand.',
+      'A listing publishes only with at least one water access type and distance to water ≤ 50 m. This rule is the brand. Brochure PDF for any published listing: /api/property/{slug}/brochure.pdf?locale=en',
   },
   access: {
     // §8.1: admin/editor see all; agency_admin own agency; agency_agent own listings only.

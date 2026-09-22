@@ -49,6 +49,7 @@
     "react-dom": "^19.0.0",
     "react-email": "^6.9.5",
     "react-hook-form": "^7.54.0",
+    "recharts": "^3.10.1",
     "resend": "^4.1.0",
     "sharp": "^0.35.4",
     "tailwind-merge": "^3.0.0",

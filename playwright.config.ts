@@ -2,8 +2,10 @@ import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
   testDir: './tests',
-  // tests/int/** are Vitest integration specs, not Playwright.
-  testIgnore: ['**/int/**'],
+  // tests/int/** are Vitest integration specs, not Playwright. tests/e2e/**
+  // are the create-payload-app scaffold specs that seed users in a real
+  // database — they run only in CI's service-container job (WL_DB_E2E=1).
+  testIgnore: process.env.WL_DB_E2E ? ['**/int/**'] : ['**/int/**', '**/e2e/**'],
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   // One local retry: dev-mode compile storms make the first hit on a heavy

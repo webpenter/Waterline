@@ -303,6 +303,12 @@ export default async function PropertyPage({ params }: DetailPageProps) {
                 consentRequired: t('formConsentRequired'),
               }}
             />
+            <a
+              href={`/api/property/${slug}/brochure.pdf?locale=${locale}`}
+              className="mt-3 block border border-abyss px-4 py-3 text-center text-xs uppercase tracking-[0.14em] text-abyss"
+            >
+              {t('brochureCta')}
+            </a>
             {agent?.whatsapp || agency?.whatsapp ? (
               <a
                 href={`https://wa.me/${(agent?.whatsapp ?? agency?.whatsapp ?? '').replace(/[^\d]/g, '')}`}
