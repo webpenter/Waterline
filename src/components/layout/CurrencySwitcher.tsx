@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 import { CURRENCIES, type Currency } from '@/collections/Property/enums';
+import { trackEvent } from '@/lib/analytics';
 import { CURRENCY_COOKIE, DEFAULT_CURRENCY, isCurrency } from '@/lib/intl/format';
 
 function readCookie(name: string): string | undefined {
@@ -24,6 +25,7 @@ export function CurrencySwitcher({ label, dark = false }: { label: string; dark?
 
   function onChange(next: string) {
     if (!isCurrency(next)) return;
+    trackEvent('currency_switched', { from: currency, to: next });
     setCurrency(next);
     document.cookie = `${CURRENCY_COOKIE}=${next}; path=/; max-age=31536000; samesite=lax`;
     router.refresh();

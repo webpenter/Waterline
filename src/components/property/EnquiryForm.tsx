@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef, useState, type FormEvent } from 'react';
 
+import { trackEvent } from '@/lib/analytics';
 import { leadSchema } from '@/lib/schemas/lead';
 
 interface EnquiryFormLabels {
@@ -104,6 +105,12 @@ export function EnquiryForm({ propertyId, source = 'property', locale, labels }:
         body: JSON.stringify(parsed.data),
       });
       if (!response.ok) throw new Error(String(response.status));
+      // §17: no personal data in the payload — source and shape only.
+      trackEvent('lead_submitted', {
+        source,
+        hasPhone: Boolean(parsed.data.phone),
+        propertyId,
+      });
       setStatus('success');
       form.reset();
     } catch {

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { getLocale, getTranslations, setRequestLocale } from 'next-intl/server';
 
+import { AnalyticsBeacon } from '@/components/analytics/AnalyticsBeacon';
 import { SiteFooter } from '@/components/layout/SiteFooter';
 import { SiteHeader } from '@/components/layout/SiteHeader';
 import { FilterPills } from '@/components/search/FilterPills';
@@ -133,6 +134,14 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
       </a>
       <SiteHeader />
       <main>
+      <AnalyticsBeacon
+        event="search_performed"
+        props={{
+          facetsUsed: activeFilterParams(sp),
+          resultCount: result.total,
+          sort: filters.sort ?? 'newest',
+        }}
+      />
       <FilterPills params={sp} />
       <div
         className="grid lg:grid-cols-[1.25fr_1fr]"

@@ -4,6 +4,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useTransition } from 'react';
 
 import { LOCALES, type AppLocale } from '@/i18n/routing';
+import { trackEvent } from '@/lib/analytics';
 
 // Native language names are deliberately untranslated — every reader must be
 // able to find their own language.
@@ -35,6 +36,7 @@ export function LocaleSwitcher({ label, currentLocale, dark = false }: LocaleSwi
   const [, startTransition] = useTransition();
 
   function onChange(next: string) {
+    trackEvent('locale_switched', { from: currentLocale, to: next });
     const segments = pathname.split('/');
     segments[1] = next;
     const query = searchParams.toString();

@@ -56,3 +56,12 @@ See spec §7.4. In short: `src/app/(frontend)` is the public site, `src/app/(pay
 ## Decisions
 
 Every judgement call not already answered by spec §21 is logged in `DECISIONS.md`, append-only, with the reasoning and how reversible it is.
+
+## Operations & launch
+
+- `docs/runbooks/` — deploy, database, search-index, incident and content-freeze runbooks (§19).
+- `LAUNCH-CHECKLIST.md` — the §19/§20 go-live gate; the blocking items are "no `isSample` listing publicly indexable" and `SAMPLE_DATA_ENABLED=false` in production.
+- `docs/admin-guide.md` — the backoffice walkthrough for editors and agencies.
+- `docs/privacy-procedures.md` / `docs/anti-scraping.md` — the §16 procedures, including the one-click lead anonymisation and retention schedules.
+- `docs/keyboard-test-script.md` — the manual accessibility pass run before each release.
+- Monitoring: unhandled server errors flow through `src/instrumentation.ts` (PII-scrubbed; forwarded to Sentry when `SENTRY_DSN` is set); analytics events are typed in `src/lib/analytics.ts` and load only after cookie consent. Point an external uptime monitor at `/api/health`.

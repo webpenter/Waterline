@@ -10,6 +10,8 @@ import {
   type ReactNode,
 } from 'react';
 
+import { trackEvent } from '@/lib/analytics';
+
 import type { LightboxImage, LightboxLabels } from './Lightbox';
 
 // §12.2 rule 3: the lightbox is an ssr:false dynamic import — its chunk loads
@@ -25,6 +27,7 @@ const GalleryContext = createContext<GalleryContextValue | null>(null);
 interface GalleryLightboxProps {
   images: LightboxImage[];
   labels: LightboxLabels;
+  propertyId?: number;
   children: ReactNode;
 }
 
@@ -33,14 +36,23 @@ interface GalleryLightboxProps {
  * state, restores focus to the opening trigger on close (§15), and mounts the
  * lazy Lightbox only after the first interaction.
  */
-export function GalleryLightbox({ images, labels, children }: GalleryLightboxProps) {
+export function GalleryLightbox({ images, labels, propertyId, children }: GalleryLightboxProps) {
   const [index, setIndex] = useState<number | null>(null);
   const triggerRef = useRef<HTMLElement | null>(null);
 
-  const openAt = useCallback((next: number, trigger: HTMLElement | null) => {
-    triggerRef.current = trigger;
-    setIndex(next);
-  }, []);
+  const openedOnce = useRef(false);
+
+  const openAt = useCallback(
+    (next: number, trigger: HTMLElement | null) => {
+      triggerRef.current = trigger;
+      if (!openedOnce.current && propertyId != null) {
+        openedOnce.current = true;
+        trackEvent('gallery_opened', { propertyId, photoCount: images.length });
+      }
+      setIndex(next);
+    },
+    [images.length, propertyId],
+  );
 
   const close = useCallback(() => {
     setIndex(null);

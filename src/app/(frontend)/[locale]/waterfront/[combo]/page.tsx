@@ -3,6 +3,7 @@ import { notFound, permanentRedirect } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { RichText } from '@payloadcms/richtext-lexical/react';
 
+import { AnalyticsBeacon } from '@/components/analytics/AnalyticsBeacon';
 import { SiteFooter } from '@/components/layout/SiteFooter';
 import { SiteHeader } from '@/components/layout/SiteHeader';
 import { EnquiryForm } from '@/components/property/EnquiryForm';
@@ -193,6 +194,7 @@ export default async function ComboPage({ params }: ComboPageProps) {
   return (
     <>
       <SiteHeader />
+      <AnalyticsBeacon event="landing_viewed" props={{ comboSlug: combo }} />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

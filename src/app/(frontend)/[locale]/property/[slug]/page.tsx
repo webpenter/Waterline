@@ -3,6 +3,8 @@ import { notFound } from 'next/navigation';
 import { getLocale, getTranslations, setRequestLocale } from 'next-intl/server';
 import { RichText } from '@payloadcms/richtext-lexical/react';
 
+import { AnalyticsBeacon } from '@/components/analytics/AnalyticsBeacon';
+import { TrackedLink } from '@/components/analytics/TrackedLink';
 import { SiteFooter } from '@/components/layout/SiteFooter';
 import { SiteHeader } from '@/components/layout/SiteHeader';
 import { EnquiryForm } from '@/components/property/EnquiryForm';
@@ -180,6 +182,23 @@ export default async function PropertyPage({ params }: DetailPageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <ViewBeacon propertyId={property.id} />
+      <AnalyticsBeacon
+        event="listing_viewed"
+        props={{
+          propertyId: property.id,
+          waterType: property.waterBodyType ?? undefined,
+          priceBand:
+            property.priceEur != null
+              ? property.priceEur < 1_000_000
+                ? 'lt_1m'
+                : property.priceEur < 5_000_000
+                  ? '1m_5m'
+                  : property.priceEur < 10_000_000
+                    ? '5m_10m'
+                    : 'gte_10m'
+              : 'on_request',
+        }}
+      />
       <main>
 
       {property.isSample ? (
@@ -306,19 +325,23 @@ export default async function PropertyPage({ params }: DetailPageProps) {
                 errorEmail: t('formErrorEmail'),
               }}
             />
-            <a
+            <TrackedLink
+              event="brochure_downloaded"
+              eventProps={{ propertyId: property.id, locale }}
               href={`/api/property/${slug}/brochure.pdf?locale=${locale}`}
               className="mt-3 block border border-abyss px-4 py-3 text-center text-xs uppercase tracking-[0.14em] text-abyss"
             >
               {t('brochureCta')}
-            </a>
+            </TrackedLink>
             {agent?.whatsapp || agency?.whatsapp ? (
-              <a
+              <TrackedLink
+                event="whatsapp_clicked"
+                eventProps={{ propertyId: property.id, agencyId: agency?.id }}
                 href={`https://wa.me/${(agent?.whatsapp ?? agency?.whatsapp ?? '').replace(/[^\d]/g, '')}`}
                 className="mt-3 block border border-abyss px-4 py-3 text-center text-xs uppercase tracking-[0.14em] text-abyss"
               >
                 {t('whatsappCta')}
-              </a>
+              </TrackedLink>
             ) : null}
             <p className="mt-4 text-[length:var(--text-xs)] leading-relaxed text-ink-soft">
               {t('disclaimer')}

@@ -79,6 +79,7 @@ export async function GalleryGrid({ property }: { property: Property }) {
 
   return (
     <GalleryLightbox
+      propertyId={property.id}
       images={realImages}
       labels={{
         dialog: t('lightboxLabel'),
