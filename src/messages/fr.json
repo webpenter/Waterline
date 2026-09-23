@@ -252,5 +252,15 @@
   "_meta": {
     "status": "translated-ui-pass",
     "source": "en.json"
+  },
+  "about": {
+    "title": "À propos de WATERLINE",
+    "sub": "WATERLINE est le portail immobilier mondial d'un seul type de bien : celui où l'eau commence à la limite de la propriété.",
+    "ruleTitle": "Une règle, aucune exception",
+    "ruleBody": "Chaque annonce de ce site dispose d'un accès direct à l'eau vérifié — rive privée, ponton, plage ou anneau — à cinquante mètres au plus de la ligne d'eau. Pas de « vue mer », pas de « cinq minutes de la plage ». Une annonce qui ne peut pas prouver son accès n'est pas publiée ; la plateforme elle-même la refuse.",
+    "dataTitle": "Mesuré, pas décrit",
+    "dataBody": "Nous publions les chiffres qui comptent au bord de l'eau : mètres de rive privée, profondeur à quai, longueur et largeur maximales du bateau, ponts sur la route du large et régime de la rive. Les acheteurs peuvent chercher selon la longueur de leur bateau — car c'est ainsi que pensent réellement les acheteurs au bord de l'eau.",
+    "agenciesTitle": "Pour les agences",
+    "agenciesBody": "WATERLINE référence gratuitement les biens au bord de l'eau d'agences spécialisées du monde entier. Les demandes vous parviennent directement, vos annonces restent les vôtres, et notre seule condition est celle sur laquelle comptent les acheteurs : l'accès doit être réel."
   }
 }

@@ -248,5 +248,15 @@
     "unitsMetric": "Metric",
     "unitsImperial": "Imperial",
     "originalPrice": "Listed at {price}"
+  },
+  "about": {
+    "title": "About WATERLINE",
+    "sub": "WATERLINE is the global property portal for one kind of home only: the kind where the water starts at the property line.",
+    "ruleTitle": "One rule, no exceptions",
+    "ruleBody": "Every listing on this site has verified direct water access — a private shore, a dock, a beach or a berth — and stands no more than fifty metres from the waterline. No sea views, no \"five minutes from the beach\". A listing that cannot prove its access does not publish; the platform itself refuses it.",
+    "dataTitle": "Measured, not described",
+    "dataBody": "We publish the numbers that matter on the water: metres of private frontage, depth at the berth, maximum boat length and beam, bridges on the route to open water, and the shoreline tenure. Buyers can search by the length of their boat, because that is how buyers on the water actually think.",
+    "agenciesTitle": "For agencies",
+    "agenciesBody": "WATERLINE lists waterfront property from specialist agencies worldwide, free of charge. Enquiries go directly to you, your listings stay yours, and our only condition is the same one buyers rely on: the access must be real."
   }
 }

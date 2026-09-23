@@ -252,5 +252,15 @@
   "_meta": {
     "status": "translated-ui-pass",
     "source": "en.json"
+  },
+  "about": {
+    "title": "Über WATERLINE",
+    "sub": "WATERLINE ist das weltweite Immobilienportal für nur eine Art von Zuhause: die, bei der das Wasser an der Grundstücksgrenze beginnt.",
+    "ruleTitle": "Eine Regel, keine Ausnahmen",
+    "ruleBody": "Jedes Inserat auf dieser Seite hat geprüften direkten Wasserzugang — privates Ufer, Dock, Strand oder Liegeplatz — und liegt höchstens fünfzig Meter von der Wasserlinie entfernt. Kein Meerblick, kein „fünf Minuten zum Strand“. Ein Inserat, das seinen Zugang nicht belegen kann, wird nicht veröffentlicht; die Plattform selbst lehnt es ab.",
+    "dataTitle": "Vermessen statt beschrieben",
+    "dataBody": "Wir veröffentlichen die Zahlen, die am Wasser zählen: Meter privater Uferfront, Tiefe am Liegeplatz, maximale Bootslänge und -breite, Brücken auf dem Weg ins offene Wasser und das Uferrecht. Käufer können nach der Länge ihres Bootes suchen — denn genau so denken Käufer am Wasser.",
+    "agenciesTitle": "Für Agenturen",
+    "agenciesBody": "WATERLINE listet Wasserlagen von spezialisierten Agenturen weltweit — kostenlos. Anfragen gehen direkt an Sie, Ihre Inserate bleiben Ihre, und unsere einzige Bedingung ist dieselbe, auf die sich Käufer verlassen: Der Zugang muss echt sein."
   }
 }

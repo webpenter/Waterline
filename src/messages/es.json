@@ -252,5 +252,15 @@
   "_meta": {
     "status": "translated-ui-pass",
     "source": "en.json"
+  },
+  "about": {
+    "title": "Sobre WATERLINE",
+    "sub": "WATERLINE es el portal inmobiliario mundial para un solo tipo de casa: aquella donde el agua empieza en el límite de la parcela.",
+    "ruleTitle": "Una regla, sin excepciones",
+    "ruleBody": "Cada anuncio de este sitio tiene acceso directo al agua verificado — orilla privada, muelle, playa o amarre — y está a no más de cincuenta metros de la línea de agua. Sin «vistas al mar», sin «a cinco minutos de la playa». Un anuncio que no puede demostrar su acceso no se publica; la propia plataforma lo rechaza.",
+    "dataTitle": "Medido, no descrito",
+    "dataBody": "Publicamos las cifras que importan junto al agua: metros de frente privado, calado en el amarre, eslora y manga máximas, puentes en la ruta a mar abierto y el régimen de la orilla. Los compradores pueden buscar por la eslora de su barco, porque así es como piensan realmente los compradores junto al agua.",
+    "agenciesTitle": "Para agencias",
+    "agenciesBody": "WATERLINE publica propiedades junto al agua de agencias especializadas de todo el mundo, sin coste. Las consultas llegan directamente a usted, sus anuncios siguen siendo suyos, y nuestra única condición es la misma en la que confían los compradores: el acceso debe ser real."
   }
 }
