@@ -9,7 +9,6 @@ import { Link } from '@/i18n/navigation';
 import { getDestinationCounts, getFeatured, searchPropertiesPostgres, type Locale } from '@/lib/db';
 import type { DestinationCount } from '@/lib/db';
 import type { Property } from '@/payload-types';
-import { layout } from '@/tokens/layout';
 import { HERO_SCRIM, HORIZON_LINE, horizonGradientFor } from '@/tokens/placeholders';
 
 // SSG + ISR 300 s (§10.1).
@@ -84,11 +83,11 @@ export default async function HomePage({
   return (
     <>
       <main>
-      {/* 1 · Hero — single still, scrim, horizon, search bar (§10.1, §11.1). */}
-      <div
-        className="relative flex flex-col text-white"
-        style={{ minHeight: layout.homeHeroMinH }}
-      >
+      {/* 1 · Hero — full-viewport still, scrim, horizon, search bar (§10.1,
+          §11.1). min-h-svh so the whole hero (nav → search) fills the first
+          screen and Signature properties stays below the fold; svh handles
+          mobile browser chrome correctly. */}
+      <section className="relative flex min-h-svh flex-col text-white">
         <div
           aria-hidden="true"
           className="absolute inset-0"
@@ -98,18 +97,22 @@ export default async function HomePage({
           <div className="absolute inset-0" style={{ background: HERO_SCRIM }} />
         </div>
         <SiteHeader onHero />
-        <div className="relative z-10 mt-auto px-7">
-          {/* Preview .hero h1: 42px — --text-3xl (44px), not the 60px 4xl. */}
-          <h1 className="mb-3 max-w-[15ch] font-display text-3xl leading-[1.08] tracking-[-0.02em]">
-            {t('heroTitle')}
-          </h1>
-          <p className="mb-6 max-w-[52ch] text-sm leading-relaxed text-white/85">{t('heroSub')}</p>
-        </div>
-        <form
-          action={`/${locale}/search`}
-          method="GET"
-          className="relative z-10 mx-7 mb-8 grid items-end border border-white/40 bg-white/95 text-ink shadow-pop md:grid-cols-[1.4fr_1fr_1fr_auto]"
-        >
+        {/* Vertical composition: whitespace → headline/desc (upper-middle) →
+            flexible gap (mt-auto) → search bar → small bottom spacing. */}
+        <div className="relative z-10 flex flex-1 flex-col px-7 pb-8">
+          <div className="mt-[12vh] md:mt-[15vh]">
+            <h1 className="mb-4 max-w-[15ch] font-display text-4xl leading-[1.06] tracking-[-0.02em] md:text-5xl">
+              {t('heroTitle')}
+            </h1>
+            <p className="max-w-[52ch] text-sm leading-relaxed text-white/85 md:text-base">
+              {t('heroSub')}
+            </p>
+          </div>
+          <form
+            action={`/${locale}/search`}
+            method="GET"
+            className="mt-auto grid items-end border border-white/40 bg-white/95 text-ink shadow-pop md:grid-cols-[1.4fr_1fr_1fr_auto]"
+          >
           <label className="flex flex-col gap-1 border-b border-line p-3 md:border-b-0 md:border-r">
             <span className="text-[length:var(--text-xs)] uppercase tracking-[0.16em] text-ink-soft">
               {ts('fieldWater')}
@@ -153,8 +156,9 @@ export default async function HomePage({
           >
             {t('searchCta')}
           </button>
-        </form>
-      </div>
+          </form>
+        </div>
+      </section>
 
       {/* 2 · Signature listings (§10.1). */}
       {featured.length > 0 ? (
