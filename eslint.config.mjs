@@ -23,6 +23,7 @@ const eslintConfig = [
       'test-results/**',
       'next-env.d.ts',
       'src/payload-types.ts',
+      'src/migrations/**',
     ],
   },
   ...compat.extends('next/core-web-vitals', 'next/typescript'),
