@@ -68,9 +68,15 @@ export default buildConfig({
       connectionString:
         process.env['DATABASE_URL'] ||
         'postgresql://postgres:waterline_dev_password@localhost:5432/waterline',
-      // Bound each connection attempt so an unreachable database fails fast
-      // instead of stalling page renders behind multi-second dials.
-      connectionTimeoutMillis: 3000,
+      // Generous connect timeout: a cold Vercel serverless function dialing a
+      // cross-region Supabase pooler can take several seconds. 3s (a sandbox
+      // fail-fast value) was exceeded on cold connects, so getPropertyForDetail
+      // threw → the page fell back to notFound() → a 404 got ISR-cached for
+      // 10 min. Overridable via DB_CONNECT_TIMEOUT_MS.
+      connectionTimeoutMillis: Number(process.env['DB_CONNECT_TIMEOUT_MS'] ?? 15000),
+      // Serverless: keep the per-instance pool small so concurrent invocations
+      // don't exhaust the pooler's client limit.
+      max: Number(process.env['DB_POOL_MAX'] ?? 5),
     },
     // Production never auto-pushes schema (Payload only pushes in dev):
     // committed migrations in src/migrations are applied by
