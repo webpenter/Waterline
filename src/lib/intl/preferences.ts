@@ -1,46 +1,26 @@
-import { cookies } from 'next/headers';
-
 import type { Currency } from '@/collections/Property/enums';
 
-import {
-  CURRENCY_COOKIE,
-  DEFAULT_CURRENCY,
-  DEFAULT_UNITS,
-  isCurrency,
-  isUnitSystem,
-  UNITS_COOKIE,
-  type UnitSystem,
-} from './format';
+import { DEFAULT_CURRENCY, DEFAULT_UNITS, type UnitSystem } from './format';
 
 export interface ViewerPreferences {
   currency: Currency;
   units: UnitSystem;
 }
 
-const DEFAULTS: ViewerPreferences = { currency: DEFAULT_CURRENCY, units: DEFAULT_UNITS };
-
 /**
- * Currency/unit preference read (§Prompt 6). Display-only — never feeds a query.
+ * Currency/unit preferences for server rendering.
  *
- * Reading cookies() opts a route into dynamic rendering. Indexable pages here
- * are SSG/ISR and forbidden from force-dynamic (CLAUDE.md rule 4), so on a
- * static render cookies() throws DynamicServerError — we swallow it and fall
- * back to the canonical EUR/metric defaults, letting the page render statically
- * and cache. On genuinely dynamic routes (e.g. /search, dynamic via
- * searchParams) the read succeeds and the visitor's real preference applies.
- * Per-user currency on cached listing pages is applied client-side.
+ * Deliberately does NOT read cookies(). Reading cookies() marks a route
+ * dynamic, and these preferences are consumed by SSG/ISR pages (property,
+ * landing, home, destinations) that have generateStaticParams — Next then
+ * throws "Page changed from static to dynamic at runtime, reason: cookies"
+ * on any non-prerendered request, which was 500ing every property page in
+ * production. CLAUDE.md rule 4 also forbids force-dynamic on indexable routes.
+ *
+ * So the server renders in the canonical currency (EUR — the stored priceEur)
+ * and metric units; per-visitor currency/unit switching is applied
+ * client-side by the switchers. Kept async so callers need no changes.
  */
 export async function getViewerPreferences(): Promise<ViewerPreferences> {
-  try {
-    const store = await cookies();
-    const currency = store.get(CURRENCY_COOKIE)?.value;
-    const units = store.get(UNITS_COOKIE)?.value;
-    return {
-      currency: isCurrency(currency) ? currency : DEFAULT_CURRENCY,
-      units: isUnitSystem(units) ? units : DEFAULT_UNITS,
-    };
-  } catch {
-    // Static/ISR render: cookies() unavailable — use canonical defaults.
-    return DEFAULTS;
-  }
+  return { currency: DEFAULT_CURRENCY, units: DEFAULT_UNITS };
 }
