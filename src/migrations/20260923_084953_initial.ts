@@ -19,10 +19,11 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   CREATE TYPE "public"."enum_properties_mooring_type" AS ENUM('none', 'buoy', 'jetty', 'pontoon', 'fixed_dock', 'floating_dock', 'boat_lift', 'dry_dock', 'marina_berth');
   CREATE TYPE "public"."enum_properties_condition" AS ENUM('new', 'renovated', 'good', 'to_renovate', 'shell');
   CREATE TYPE "public"."enum_properties_location_coordinate_precision" AS ENUM('exact', 'approximate_500m', 'hidden');
-  CREATE TYPE "public"."enum_properties_status" AS ENUM('draft', 'published');
+  CREATE TYPE "public"."listing_status" AS ENUM('draft', 'pending_review', 'in_market', 'under_offer', 'sold', 'withdrawn', 'expired', 'archived');
   CREATE TYPE "public"."enum_properties_moderation" AS ENUM('unreviewed', 'approved', 'rejected', 'changes_requested');
   CREATE TYPE "public"."enum_properties_visibility" AS ENUM('public', 'unlisted', 'private');
   CREATE TYPE "public"."enum_properties_source_type" AS ENUM('manual', 'csv_import', 'xml_feed', 'api');
+  CREATE TYPE "public"."enum_properties_status" AS ENUM('draft', 'published');
   CREATE TYPE "public"."enum__properties_v_version_water_access_type" AS ENUM('private_beach', 'shared_beach', 'direct_shore', 'private_dock', 'private_mooring', 'marina_berth_included', 'boathouse', 'slipway', 'seawall_quay', 'rock_platform', 'riparian_access', 'whole_island');
   CREATE TYPE "public"."enum__properties_v_version_features" AS ENUM('pool', 'infinity_pool', 'heated_pool', 'gym', 'spa', 'sauna', 'staff_quarters', 'helipad', 'tennis', 'vineyard', 'olive_grove', 'solar', 'geothermal', 'elevator', 'gated', 'smart_home', 'guest_house', 'garage', 'wine_cellar', 'cinema');
   CREATE TYPE "public"."enum__properties_v_version_property_type" AS ENUM('villa', 'apartment', 'penthouse', 'estate', 'farmhouse', 'chalet', 'townhouse', 'castle', 'lighthouse', 'boathouse', 'private_island', 'land_plot', 'marina_residence', 'development_project', 'hotel_resort');
@@ -38,10 +39,10 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   CREATE TYPE "public"."enum__properties_v_version_mooring_type" AS ENUM('none', 'buoy', 'jetty', 'pontoon', 'fixed_dock', 'floating_dock', 'boat_lift', 'dry_dock', 'marina_berth');
   CREATE TYPE "public"."enum__properties_v_version_condition" AS ENUM('new', 'renovated', 'good', 'to_renovate', 'shell');
   CREATE TYPE "public"."enum__properties_v_version_location_coordinate_precision" AS ENUM('exact', 'approximate_500m', 'hidden');
-  CREATE TYPE "public"."enum__properties_v_version_status" AS ENUM('draft', 'published');
   CREATE TYPE "public"."enum__properties_v_version_moderation" AS ENUM('unreviewed', 'approved', 'rejected', 'changes_requested');
   CREATE TYPE "public"."enum__properties_v_version_visibility" AS ENUM('public', 'unlisted', 'private');
   CREATE TYPE "public"."enum__properties_v_version_source_type" AS ENUM('manual', 'csv_import', 'xml_feed', 'api');
+  CREATE TYPE "public"."enum__properties_v_version_status" AS ENUM('draft', 'published');
   CREATE TYPE "public"."enum__properties_v_published_locale" AS ENUM('en', 'it', 'fr', 'de', 'es', 'ru');
   CREATE TYPE "public"."enum_agencies_languages" AS ENUM('en', 'it', 'fr', 'de', 'es', 'ru');
   CREATE TYPE "public"."enum_agencies_tier" AS ENUM('standard', 'verified', 'partner');
@@ -249,7 +250,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"slug" varchar,
   	"agency_id" integer,
   	"agent_id" integer,
-  	"status" "enum_properties_status" DEFAULT 'draft',
+  	"status" "listing_status" DEFAULT 'draft',
   	"moderation" "enum_properties_moderation" DEFAULT 'unreviewed',
   	"moderation_note" varchar,
   	"visibility" "enum_properties_visibility" DEFAULT 'public',
@@ -380,7 +381,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"version_slug" varchar,
   	"version_agency_id" integer,
   	"version_agent_id" integer,
-  	"version_status" "enum__properties_v_version_status" DEFAULT 'draft',
+  	"version_status" "listing_status" DEFAULT 'draft',
   	"version_moderation" "enum__properties_v_version_moderation" DEFAULT 'unreviewed',
   	"version_moderation_note" varchar,
   	"version_visibility" "enum__properties_v_version_visibility" DEFAULT 'public',
@@ -1236,10 +1237,11 @@ export async function down({ db, payload, req }: MigrateDownArgs): Promise<void>
   DROP TYPE "public"."enum_properties_mooring_type";
   DROP TYPE "public"."enum_properties_condition";
   DROP TYPE "public"."enum_properties_location_coordinate_precision";
-  DROP TYPE "public"."enum_properties_status";
+  DROP TYPE "public"."listing_status";
   DROP TYPE "public"."enum_properties_moderation";
   DROP TYPE "public"."enum_properties_visibility";
   DROP TYPE "public"."enum_properties_source_type";
+  DROP TYPE "public"."enum_properties_status";
   DROP TYPE "public"."enum__properties_v_version_water_access_type";
   DROP TYPE "public"."enum__properties_v_version_features";
   DROP TYPE "public"."enum__properties_v_version_property_type";
@@ -1255,10 +1257,10 @@ export async function down({ db, payload, req }: MigrateDownArgs): Promise<void>
   DROP TYPE "public"."enum__properties_v_version_mooring_type";
   DROP TYPE "public"."enum__properties_v_version_condition";
   DROP TYPE "public"."enum__properties_v_version_location_coordinate_precision";
-  DROP TYPE "public"."enum__properties_v_version_status";
   DROP TYPE "public"."enum__properties_v_version_moderation";
   DROP TYPE "public"."enum__properties_v_version_visibility";
   DROP TYPE "public"."enum__properties_v_version_source_type";
+  DROP TYPE "public"."enum__properties_v_version_status";
   DROP TYPE "public"."enum__properties_v_published_locale";
   DROP TYPE "public"."enum_agencies_languages";
   DROP TYPE "public"."enum_agencies_tier";

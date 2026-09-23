@@ -1603,7 +1603,7 @@
         },
         "status": {
           "name": "status",
-          "type": "enum_properties_status",
+          "type": "listing_status",
           "typeSchema": "public",
           "primaryKey": false,
           "notNull": false,
@@ -3174,7 +3174,7 @@
         },
         "version_status": {
           "name": "version_status",
-          "type": "enum__properties_v_version_status",
+          "type": "listing_status",
           "typeSchema": "public",
           "primaryKey": false,
           "notNull": false,
@@ -9740,12 +9740,18 @@
         "hidden"
       ]
     },
-    "public.enum_properties_status": {
-      "name": "enum_properties_status",
+    "public.listing_status": {
+      "name": "listing_status",
       "schema": "public",
       "values": [
         "draft",
-        "published"
+        "pending_review",
+        "in_market",
+        "under_offer",
+        "sold",
+        "withdrawn",
+        "expired",
+        "archived"
       ]
     },
     "public.enum_properties_moderation": {
@@ -9775,6 +9781,14 @@
         "csv_import",
         "xml_feed",
         "api"
+      ]
+    },
+    "public.enum_properties_status": {
+      "name": "enum_properties_status",
+      "schema": "public",
+      "values": [
+        "draft",
+        "published"
       ]
     },
     "public.enum__properties_v_version_water_access_type": {
@@ -9984,14 +9998,6 @@
         "hidden"
       ]
     },
-    "public.enum__properties_v_version_status": {
-      "name": "enum__properties_v_version_status",
-      "schema": "public",
-      "values": [
-        "draft",
-        "published"
-      ]
-    },
     "public.enum__properties_v_version_moderation": {
       "name": "enum__properties_v_version_moderation",
       "schema": "public",
@@ -10019,6 +10025,14 @@
         "csv_import",
         "xml_feed",
         "api"
+      ]
+    },
+    "public.enum__properties_v_version_status": {
+      "name": "enum__properties_v_version_status",
+      "schema": "public",
+      "values": [
+        "draft",
+        "published"
       ]
     },
     "public.enum__properties_v_published_locale": {
@@ -10351,6 +10365,6 @@
     "tables": {},
     "columns": {}
   },
-  "id": "e1d5401d-3f44-40a5-bdf3-08ab701d0fe2",
+  "id": "a252235b-f83d-4a8b-a9f7-2cd11d463a1b",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }

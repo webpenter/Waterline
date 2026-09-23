@@ -426,6 +426,11 @@ export const Property: CollectionConfig = {
       defaultValue: 'draft',
       index: true,
       options: [...PROPERTY_STATUSES],
+      // Distinct DB enum name: the collection also has drafts (`_status`),
+      // and Payload otherwise derives `enum_properties_status` for BOTH this
+      // field and `_status`, colliding so drafts' draft/published wins and
+      // this field's values are dropped. The Payload API still uses `status`.
+      dbName: 'listing_status',
       admin: { position: 'sidebar' },
     },
     {
