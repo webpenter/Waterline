@@ -26,7 +26,6 @@ pnpm-debug.log*
 /coverage/
 
 # Payload generated files
-/src/payload-types.ts
 /media/
 
 # Generated from src/tokens/tokens.ts — run `pnpm tokens:build`
