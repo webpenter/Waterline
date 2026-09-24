@@ -46,7 +46,14 @@ async function loadProperty(slug: string, locale: string): Promise<Property | nu
   } catch (err) {
     console.warn('[property-page] load failed:', err);
     // DB-error path only, demo mode only, exact slug only (§13.12).
-    return sampleFallbackEnabled() ? findFallbackProperty(slug) : null;
+    const fallback = sampleFallbackEnabled() ? findFallbackProperty(slug) : null;
+    if (fallback) return fallback;
+    // No fallback match: this was a DB *error*, not a "slug not found". Never
+    // let a transient DB failure become a notFound() — ISR caches 404s for up
+    // to `stale-while-revalidate` (24h), poisoning valid listings. Re-throw so
+    // Next.js keeps serving the last good cached page and retries, instead of
+    // baking a false 404 into the cache.
+    throw err;
   }
 }
 

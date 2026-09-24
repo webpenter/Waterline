@@ -6,7 +6,9 @@ import packageJson from '../../../../package.json';
 async function checkDb(): Promise<boolean> {
   const connectionString = process.env.DATABASE_URL;
   if (!connectionString) return false;
-  const pool = new Pool({ connectionString, connectionTimeoutMillis: 2000, max: 1 });
+  // A cold cross-region pooler connect can take several seconds; 2s produced
+  // false "unreachable" readings even when the app could query fine.
+  const pool = new Pool({ connectionString, connectionTimeoutMillis: 8000, max: 1 });
   try {
     await pool.query('SELECT 1');
     return true;
