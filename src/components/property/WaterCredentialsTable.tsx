@@ -11,7 +11,7 @@ function Row({ label, value, last = false }: { label: string; value: string; las
       className={`grid grid-cols-[1fr_auto] gap-4 py-2 text-xs ${last ? '' : 'border-b border-line'}`}
     >
       <span className="tracking-[0.04em] text-ink-soft">{label}</span>
-      <b className="font-medium tabular-nums text-ink">{value}</b>
+      <b className="text-right font-medium tabular-nums text-ink">{value}</b>
     </div>
   );
 }
