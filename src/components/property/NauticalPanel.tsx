@@ -8,10 +8,12 @@ import type { Property } from '@/payload-types';
 function Row({ label, value, last = false }: { label: string; value: string; last?: boolean }) {
   return (
     <div
-      className={`grid grid-cols-[1fr_auto] gap-4 py-2 text-xs ${last ? '' : 'border-b border-white/15'}`}
+      className={`flex flex-wrap items-baseline justify-between gap-x-6 gap-y-0.5 py-2 text-xs ${last ? '' : 'border-b border-white/15'}`}
     >
       <span className="tracking-[0.04em] text-white/55">{label}</span>
-      <b className="text-right font-medium tabular-nums text-white">{value}</b>
+      <b className="font-medium tabular-nums text-white [overflow-wrap:anywhere] sm:text-right">
+        {value}
+      </b>
     </div>
   );
 }
@@ -60,7 +62,7 @@ export async function NauticalPanel({ property }: { property: Property }) {
   if (rows.length === 0) return null;
 
   return (
-    <section className="mt-5 bg-abyss p-5 text-white">
+    <section className="mt-5 bg-abyss p-4 text-white sm:p-5">
       {property.maxBoatLoaM != null ? (
         <span className="mb-3 inline-block bg-sand px-3 py-1.5 text-[length:var(--text-xs)] uppercase tracking-[0.12em] text-abyss">
           {t('badgeFitsYacht', { n: property.maxBoatLoaM })}

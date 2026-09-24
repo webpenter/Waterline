@@ -202,30 +202,32 @@ export default async function PropertyPage({ params }: DetailPageProps) {
       <main>
 
       {property.isSample ? (
-        <p className="bg-sand px-7 py-2 text-center text-xs uppercase tracking-[0.12em] text-abyss">
+        <p className="bg-sand px-4 sm:px-7 py-2 text-center text-xs uppercase tracking-[0.12em] text-abyss">
           {t('sampleBadge')}
         </p>
       ) : null}
       {property.visibility === 'unlisted' ? (
-        <p className="bg-shell px-7 py-2 text-center text-xs text-ink-soft">
+        <p className="bg-shell px-4 sm:px-7 py-2 text-center text-xs text-ink-soft">
           {t('unlistedNotice')}
         </p>
       ) : null}
       {stateNotice ? (
-        <p className="bg-abyss px-7 py-2.5 text-center text-xs uppercase tracking-[0.12em] text-white">
+        <p className="bg-abyss px-4 sm:px-7 py-2.5 text-center text-xs uppercase tracking-[0.12em] text-white">
           {stateNotice}
         </p>
       ) : null}
 
       <GalleryGrid property={property} />
 
-      <header className="grid gap-6 border-b border-line px-7 pb-5 pt-6 md:grid-cols-[1fr_auto] md:items-end">
+      <header className="grid gap-3 border-b border-line px-4 pb-5 pt-6 sm:px-7 md:grid-cols-[1fr_auto] md:items-end md:gap-6">
         <div>
           <p className="text-[length:var(--text-xs)] uppercase tracking-[0.18em] text-ink-soft">
             {locality}
             {property.reference ? ` · ${t('factReference')} ${property.reference}` : ''}
           </p>
-          <h1 className="mb-1 mt-1.5 font-display text-2xl text-ink">{property.title}</h1>
+          <h1 className="mb-1 mt-1.5 font-display text-2xl leading-[1.12] text-ink md:text-2xl">
+            {property.title}
+          </h1>
           {property.subtitle ? (
             <p className="text-xs text-ink-soft">{property.subtitle}</p>
           ) : null}
@@ -250,10 +252,10 @@ export default async function PropertyPage({ params }: DetailPageProps) {
               .join(' · ')}
           </p>
         </div>
-        <p className="text-right font-display text-2xl tabular-nums text-ink">{price}</p>
+        <p className="font-display text-2xl tabular-nums text-ink md:text-right">{price}</p>
       </header>
 
-      <div className="grid gap-8 px-7 py-6 lg:grid-cols-[1.5fr_1fr]">
+      <div className="grid gap-8 px-4 py-6 sm:px-7 lg:grid-cols-[1.5fr_1fr]">
         <div>
           <WaterCredentialsTable property={property} />
           <NauticalPanel property={property} />
@@ -371,7 +373,7 @@ export default async function PropertyPage({ params }: DetailPageProps) {
       </div>
 
       {similar.length > 0 ? (
-        <section className="border-t border-line px-7 py-8">
+        <section className="border-t border-line px-4 sm:px-7 py-8">
           <h2 className="mb-5 font-display text-xl text-ink">{t('similarTitle')}</h2>
           <div className="grid gap-5 md:grid-cols-3">
             {similar.map((item) => (
@@ -381,7 +383,7 @@ export default async function PropertyPage({ params }: DetailPageProps) {
         </section>
       ) : null}
 
-      <nav aria-label={t('breadcrumbHome')} className="px-7 pb-6 text-xs text-ink-soft">
+      <nav aria-label={t('breadcrumbHome')} className="px-4 sm:px-7 pb-6 text-xs text-ink-soft">
         <Link href="/" className="hover:text-tide">
           {t('breadcrumbHome')}
         </Link>

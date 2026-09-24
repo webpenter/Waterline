@@ -49,13 +49,16 @@ export async function GalleryGrid({ property }: { property: Property }) {
 
   const grid = (
     <div
-      className="grid grid-cols-[2fr_1fr_1fr] grid-rows-2 gap-1"
+      className="grid grid-cols-2 grid-rows-[2fr_1fr_1fr] gap-1 sm:grid-cols-[2fr_1fr_1fr] sm:grid-rows-2"
       style={{ height: layout.galleryH }}
     >
       {cells.map((cell, index) => {
         const lightboxIndex = lightboxIndexByCell.get(index);
         return (
-          <div key={index} className={`relative ${index === 0 ? 'row-span-2' : ''}`}>
+          <div
+            key={index}
+            className={`relative ${index === 0 ? 'col-span-2 sm:col-span-1 sm:row-span-2' : ''}`}
+          >
             <HorizonImage
               media={cell}
               seed={`${property.id}-${index}`}

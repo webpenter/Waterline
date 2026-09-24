@@ -8,10 +8,14 @@ import type { Property } from '@/payload-types';
 function Row({ label, value, last = false }: { label: string; value: string; last?: boolean }) {
   return (
     <div
-      className={`grid grid-cols-[1fr_auto] gap-4 py-2 text-xs ${last ? '' : 'border-b border-line'}`}
+      className={`flex flex-wrap items-baseline justify-between gap-x-6 gap-y-0.5 py-2 text-xs ${last ? '' : 'border-b border-line'}`}
     >
       <span className="tracking-[0.04em] text-ink-soft">{label}</span>
-      <b className="text-right font-medium tabular-nums text-ink">{value}</b>
+      {/* flex-wrap: short values sit on the label's line (justified right); long
+          values reflow onto their own full-width line instead of squeezing. */}
+      <b className="font-medium tabular-nums text-ink [overflow-wrap:anywhere] sm:text-right">
+        {value}
+      </b>
     </div>
   );
 }
