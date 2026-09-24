@@ -99,9 +99,9 @@ export default async function HomePage({
         <SiteHeader onHero />
         {/* Vertical composition: whitespace → headline/desc (upper-middle) →
             flexible gap (mt-auto) → search bar → small bottom spacing. */}
-        <div className="relative z-10 flex flex-1 flex-col px-7 pb-8">
-          <div className="mt-[12vh] md:mt-[15vh]">
-            <h1 className="mb-4 max-w-[15ch] font-display text-4xl leading-[1.06] tracking-[-0.02em] md:text-5xl">
+        <div className="relative z-10 flex flex-1 flex-col px-5 pb-6 sm:px-7 sm:pb-8">
+          <div className="mt-[6vh] sm:mt-[12vh] md:mt-[15vh]">
+            <h1 className="mb-3 max-w-[15ch] font-display text-3xl leading-[1.08] tracking-[-0.02em] sm:mb-4 sm:text-4xl sm:leading-[1.06] md:text-5xl">
               {t('heroTitle')}
             </h1>
             <p className="max-w-[52ch] text-sm leading-relaxed text-white/85 md:text-base">
